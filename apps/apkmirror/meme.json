@@ -1,9 +1,10 @@
 {
     "org": "zombodroid",
     "name": "meme-generator-free",
-    "type": "APK", 
+    "release_prefix": "meme-generator",
+    "type": "BUNDLE", 
     "arch": "universal",
-    "dpi": "nodpi",
+    "dpi": "120-640dpi",
     "package" : "com.zombodroid.MemeGenerator",
     "version" : ""
 }
