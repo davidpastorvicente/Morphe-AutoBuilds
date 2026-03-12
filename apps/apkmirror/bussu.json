@@ -2,7 +2,7 @@
     "org": "busuu",
     "name": "busuu-learn-languages",
     "type": "APK", 
-    "arch": "universal",
+    "arch": "noarch",
     "dpi": "",
     "package" : "com.busuu.android.enc",
     "version" : ""
