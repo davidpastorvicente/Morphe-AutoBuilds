@@ -1,0 +1,10 @@
+{
+    "org": "allinonecalculator-com",
+    "name": "all-in-one-calculator-free",
+    "release_prefix": "",
+    "type": "BUNDLE", 
+    "arch": "universal",
+    "dpi": "120-640dpi",
+    "package" : "com.busuu.android.enc",
+    "version" : ""
+}
