@@ -9,58 +9,8 @@ on:
     - cron: '0 6 */3 * *'  # Every 3 days at 6 AM UTC
 
 jobs:
-  download-tools:
-    name: Download ReVanced Tools
-    runs-on: ubuntu-latest
-    outputs:
-      cache-key: ${{ steps.cache-key.outputs.cache-key }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-      
-      - name: Download ReVanced Tools
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p tools
-          curl -L "https://github.com/revanced/revanced-cli/releases/latest/download/revanced-cli-all.jar" -o tools/revanced-cli.jar
-          curl -L "https://github.com/revanced/revanced-patches/releases/latest/download/patches.jar" -o tools/patches.jar
-          curl -L "https://github.com/revanced/revanced-integrations/releases/latest/download/app-release-unsigned.apk" -o tools/integrations.apk
-      
-      - name: Cache Tools
-        uses: actions/cache@v4
-        id: cache-tools
-        with:
-          path: tools/
-          key: revanced-tools-${{ hashFiles('patch-config.json', 'arch-config.json') }}
-      
-      - name: Generate Cache Key
-        id: cache-key
-        run: echo "cache-key=${{ steps.cache-tools.outputs.cache-key || 'no-cache' }}" >> $GITHUB_OUTPUT
-
-  check-updates:
-    name: Check for Updates
-    needs: download-tools
-    runs-on: ubuntu-latest
-    outputs:
-      has_updates: ${{ steps.check.outputs.has_updates }}
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Always Build
-        id: check
-        run: echo "has_updates=true" >> $GITHUB_OUTPUT
-
   patch-apps:
-    name: Read Configuration 
-    needs: [check-updates, download-tools]
+    name: Read Configuration
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.read-matrix.outputs.matrix }}
@@ -68,12 +18,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Restore Cached Tools
-        uses: actions/cache@v4
-        with:
-          path: tools/
-          key: revanced-tools-${{ hashFiles('patch-config.json', 'arch-config.json') }}
 
       - name: Read Patch Config
         id: read-matrix
@@ -98,12 +42,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Restore Cached Tools
-        uses: actions/cache@v4
-        with:
-          path: tools/
-          key: revanced-tools-${{ hashFiles('patch-config.json', 'arch-config.json') }}
 
       - name: Install Python
         uses: actions/setup-python@v5
