@@ -89,6 +89,7 @@ jobs:
     name: Build Applications
     needs: patch-apps
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
@@ -158,14 +159,11 @@ jobs:
           
           if [ $apk_count -eq 0 ]; then
             echo "❌ No APKs were built successfully"
-            echo "skip_release=true" >> $GITHUB_OUTPUT
-          else
-            echo "✅ $apk_count APK(s) ready for release"
-            echo "skip_release=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
+          echo "✅ $apk_count APK(s) ready for release"
       
       - name: Collect All APKs
-        if: steps.check-apks.outputs.skip_release == 'false'
         run: |
           mkdir -p ./release-apks
           
@@ -181,7 +179,6 @@ jobs:
           echo "📊 Total APKs: $final_count"
       
       - name: Generate Release Notes
-        if: steps.check-apks.outputs.skip_release == 'false'
         run: |
           echo "📝 Generating release notes..."
           
@@ -254,7 +251,6 @@ jobs:
           EOF
       
       - name: Create New Release
-        if: steps.check-apks.outputs.skip_release == 'false'
         id: create-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -285,7 +281,6 @@ jobs:
           echo "✅ Release created successfully!"
       
       - name: Display Release URL
-        if: steps.check-apks.outputs.skip_release == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.create-release.outputs.release-tag }}
