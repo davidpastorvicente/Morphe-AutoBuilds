@@ -48,14 +48,14 @@ A sophisticated, automated pipeline that builds ready-to-install Morphe applicat
 
 ### 📱 Supported Apps & Architectures
 
-| Application | arm64-v8a | armeabi-v7a | Universal |
-| :--- | :---: | :---: | :---: |
-| **YouTube** | ✅ | ✅ | ✅ |
-| **YouTube Music** | ✅ | ✅ | ❌ |
-| **Reddit** | ❌ | ❌ | ✅ |
-| **Twitter (X)** | ✅ | ❌ | ❌ |
-| **TikTok** | ❌ | ❌ | ✅ |
-| **Spotify** | ❌ | ❌ | ✅ |
+| Application       | arm64-v8a | armeabi-v7a | Universal |
+|:------------------|:---------:|:-----------:|:---------:|
+| **YouTube**       |     ✅     |      ✅      |     ✅     |
+| **YouTube Music** |     ✅     |      ✅      |     ❌     |
+| **Reddit**        |     ❌     |      ❌      |     ✅     |
+| **Twitter (X)**   |     ✅     |      ❌      |     ❌     |
+| **TikTok**        |     ❌     |      ❌      |     ✅     |
+| **Spotify**       |     ❌     |      ❌      |     ✅     |
 
 *( Legend: ✅ = Available / ❌ = Not configured )*
 
@@ -273,4 +273,3 @@ Contributions to improve the toolchain or add support for new apps are welcome.
 **If you found this project helpful, please consider giving it a ⭐ Star.**  
 <br>
 **Made with 💜 by RookieZ**
-
