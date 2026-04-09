@@ -125,7 +125,6 @@ jobs:
 
           | Name | Architecture | Version |
           | --- | --- | --- |
-          
           EOF
 
           # Collect table rows, then sort for stable release notes ordering.
