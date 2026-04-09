@@ -164,21 +164,6 @@ jobs:
             echo "skip_release=false" >> $GITHUB_OUTPUT
           fi
       
-      - name: Delete Old Release
-        if: steps.check-apks.outputs.skip_release == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Check if "latest" release exists and delete it
-          echo "🔄 Checking for existing 'latest' release..."
-          if gh release view latest >/dev/null 2>&1; then
-            echo "🗑️ Deleting old 'latest' release..."
-            gh release delete latest --yes --cleanup-tag
-            echo "✅ Old release deleted"
-          else
-            echo "📭 No existing 'latest' release found"
-          fi
-      
       - name: Collect All APKs
         if: steps.check-apks.outputs.skip_release == 'false'
         run: |
