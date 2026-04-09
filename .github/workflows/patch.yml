@@ -164,21 +164,6 @@ jobs:
             echo "skip_release=false" >> $GITHUB_OUTPUT
           fi
       
-      - name: Delete Old Release
-        if: steps.check-apks.outputs.skip_release == 'false'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Check if "latest" release exists and delete it
-          echo "🔄 Checking for existing 'latest' release..."
-          if gh release view latest >/dev/null 2>&1; then
-            echo "🗑️ Deleting old 'latest' release..."
-            gh release delete latest --yes --cleanup-tag
-            echo "✅ Old release deleted"
-          else
-            echo "📭 No existing 'latest' release found"
-          fi
-      
       - name: Collect All APKs
         if: steps.check-apks.outputs.skip_release == 'false'
         run: |
@@ -270,6 +255,7 @@ jobs:
       
       - name: Create New Release
         if: steps.check-apks.outputs.skip_release == 'false'
+        id: create-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -285,8 +271,12 @@ jobs:
           
           echo "📦 Releasing $apk_count APK(s)..."
           
+          # Generate a unique date-based tag
+          RELEASE_TAG="$(date +'%Y-%m-%d-%H%M')"
+          echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          
           # Create the release
-          gh release create "latest" \
+          gh release create "$RELEASE_TAG" \
             --title "ReVanced APKs - $(date +'%Y-%m-%d %H:%M')" \
             --notes-file release_notes.md \
             ./release-apks/*.apk \
@@ -298,8 +288,9 @@ jobs:
         if: steps.check-apks.outputs.skip_release == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.create-release.outputs.release-tag }}
         run: |
-          release_url=$(gh release view latest --json url --jq .url)
+          release_url=$(gh release view "$RELEASE_TAG" --json url --jq .url)
           echo "🔗 Release URL: $release_url"
           echo ""
           echo "📦 Direct Download Links:"
