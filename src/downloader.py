@@ -171,34 +171,11 @@ def resolve_platform(
         return None, None
 
 
-def download_platform(
-    app_name: str, platform: str, cli: str, patches: str,
-    arch: str | None = None,
-) -> tuple[Path | None, str | None]:
-    """Download the APK for *app_name* from *platform*."""
-    download_link, version = resolve_platform(
-        app_name, platform, cli, patches, arch,
-    )
-    if not download_link:
-        return None, None
-    return download_resource(download_link), version
-
-
 # Platform-specific convenience wrappers
-
-def download_apkmirror(app_name, cli, patches, arch=None):
-    """Download from APKMirror."""
-    return download_platform(app_name, "apkmirror", cli, patches, arch)
-
 
 def resolve_apkmirror(app_name, cli, patches, arch=None):
     """Resolve download URL from APKMirror."""
     return resolve_platform(app_name, "apkmirror", cli, patches, arch)
-
-
-def download_apkpure(app_name, cli, patches, arch=None):
-    """Download from APKPure."""
-    return download_platform(app_name, "apkpure", cli, patches, arch)
 
 
 def resolve_apkpure(app_name, cli, patches, arch=None):
@@ -206,19 +183,9 @@ def resolve_apkpure(app_name, cli, patches, arch=None):
     return resolve_platform(app_name, "apkpure", cli, patches, arch)
 
 
-def download_aptoide(app_name, cli, patches, arch=None):
-    """Download from Aptoide."""
-    return download_platform(app_name, "aptoide", cli, patches, arch)
-
-
 def resolve_aptoide(app_name, cli, patches, arch=None):
     """Resolve download URL from Aptoide."""
     return resolve_platform(app_name, "aptoide", cli, patches, arch)
-
-
-def download_uptodown(app_name, cli, patches, arch=None):
-    """Download from Uptodown."""
-    return download_platform(app_name, "uptodown", cli, patches, arch)
 
 
 def resolve_uptodown(app_name, cli, patches, arch=None):

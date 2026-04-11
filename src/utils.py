@@ -314,22 +314,3 @@ def _resolve_special_release(repo_obj, user: str, repo: str, tag: str) -> dict:
 
     logging.info("Fetched release: %s", release.tag_name)
     return release.raw_data
-
-
-def detect_source_type(cli_file: Path, patches_file: Path) -> str:
-    """Detect if we're using Morphe or ReVanced based on downloaded files."""
-    if (
-        cli_file
-        and "morphe" in cli_file.name.lower()
-        and patches_file
-        and patches_file.suffix == ".mpp"
-    ):
-        return "morphe"
-    if (
-        cli_file
-        and "revanced" in cli_file.name.lower()
-        and patches_file
-        and patches_file.suffix in (".jar", ".rvp")
-    ):
-        return "revanced"
-    return "unknown"

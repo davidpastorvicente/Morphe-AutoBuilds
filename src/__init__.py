@@ -16,11 +16,5 @@ logging.basicConfig(
 )
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-REPOSITORY = os.getenv("GITHUB_REPOSITORY")
-ENDPOINT_URL = os.getenv("ENDPOINT_URL")
-ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-BUCKET_NAME = os.getenv("BUCKET_NAME")
 
-BASE_URL = "https://www.apkmirror.com"
 gh = Github(GITHUB_TOKEN) if GITHUB_TOKEN else Github()
