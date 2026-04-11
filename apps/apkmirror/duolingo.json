@@ -3,6 +3,5 @@
     "name": "duolingo",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.duolingo",
-    "version": ""
+    "package": "com.duolingo"
 }

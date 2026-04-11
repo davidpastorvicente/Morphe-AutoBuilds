@@ -1,5 +1,4 @@
 {
     "name": "komoot",
-    "package": "de.komoot.android",
-    "version": ""
+    "package": "de.komoot.android"
 }

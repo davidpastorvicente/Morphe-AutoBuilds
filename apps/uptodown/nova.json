@@ -1,5 +1,4 @@
 {
     "name": "nova-launcher",
-    "package": "com.teslacoilsw.launcher",
-    "version": ""
+    "package": "com.teslacoilsw.launcher"
 }

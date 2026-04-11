@@ -3,6 +3,5 @@
     "name": "youtube",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.google.android.youtube",
-    "version": ""
+    "package": "com.google.android.youtube"
 }

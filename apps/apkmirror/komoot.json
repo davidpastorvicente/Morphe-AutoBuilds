@@ -3,6 +3,5 @@
     "name": "komoot-cycling-hiking-mountain-biking-maps",
     "type": "APK",
     "dpi": "120-640dpi",
-    "package": "de.komoot.android",
-    "version": ""
+    "package": "de.komoot.android"
 }

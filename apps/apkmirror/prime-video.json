@@ -3,6 +3,5 @@
     "name": "amazon-prime-video",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.amazon.avod.thirdpartyclient",
-    "version": ""
+    "package": "com.amazon.avod.thirdpartyclient"
 }

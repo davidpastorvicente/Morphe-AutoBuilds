@@ -3,6 +3,5 @@
     "name": "rar",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.rarlab.rar",
-    "version": ""
+    "package": "com.rarlab.rar"
 }

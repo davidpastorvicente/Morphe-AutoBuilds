@@ -3,6 +3,5 @@
     "name": "pinterest",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.pinterest",
-    "version": ""
+    "package": "com.pinterest"
 }

@@ -4,6 +4,5 @@
     "release_prefix": "busuu-learn-speak-languages",
     "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package": "com.busuu.android.enc",
-    "version": ""
+    "package": "com.busuu.android.enc"
 }

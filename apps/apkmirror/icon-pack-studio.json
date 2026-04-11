@@ -3,6 +3,5 @@
     "name": "icon-pack-studio",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "ginlemon.iconpackstudio",
-    "version": ""
+    "package": "ginlemon.iconpackstudio"
 }

@@ -1,5 +1,4 @@
 {
-  "name": "tasker",
-  "package": "net.dinglisch.android.taskerm",
-  "version": ""
+    "name": "tasker",
+    "package": "net.dinglisch.android.taskerm"
 }

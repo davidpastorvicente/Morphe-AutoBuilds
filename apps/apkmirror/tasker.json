@@ -4,6 +4,5 @@
     "release_prefix": "tasker-play-store-version",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "net.dinglisch.android.taskerm",
-    "version": ""
+    "package": "net.dinglisch.android.taskerm"
 }

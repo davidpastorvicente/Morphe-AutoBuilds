@@ -3,6 +3,5 @@
     "name": "soccer-scores-and-sports-livescore-sofascore",
     "type": "APK",
     "dpi": "480-640",
-    "package": "com.sofascore.results",
-    "version": ""
+    "package": "com.sofascore.results"
 }

@@ -1,5 +1,4 @@
 {
     "name": "meme-generator-free",
-    "package" : "com.zombodroid.MemeGenerator",
-    "version" : ""
+    "package": "com.zombodroid.MemeGenerator"
 }

@@ -3,6 +3,5 @@
     "name": "trakt",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "tv.trakt.trakt",
-    "version": ""
+    "package": "tv.trakt.trakt"
 }

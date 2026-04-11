@@ -3,6 +3,5 @@
     "name": "spotify-music-podcasts",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.spotify.music",
-    "version": ""
+    "package": "com.spotify.music"
 }

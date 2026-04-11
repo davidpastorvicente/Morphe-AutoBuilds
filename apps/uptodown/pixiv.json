@@ -1,1 +1,4 @@
-{"name":"pixiv","package":"jp.pxv.android","version":""}
+{
+    "name": "pixiv",
+    "package": "jp.pxv.android"
+}

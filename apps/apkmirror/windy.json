@@ -4,6 +4,5 @@
     "release_prefix": "windy-com-weather-forecast",
     "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package": "com.windyty.android",
-    "version": ""
+    "package": "com.windyty.android"
 }

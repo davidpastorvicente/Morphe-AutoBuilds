@@ -3,6 +3,5 @@
     "name": "strava",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.strava",
-    "version": ""
+    "package": "com.strava"
 }

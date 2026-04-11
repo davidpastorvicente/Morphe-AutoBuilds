@@ -1,5 +1,4 @@
 {
-   "name":"adobe-lightroom-mobile",
-   "package":"com.adobe.lrmobile",
-   "version": ""
+    "name": "adobe-lightroom-mobile",
+    "package": "com.adobe.lrmobile"
 }

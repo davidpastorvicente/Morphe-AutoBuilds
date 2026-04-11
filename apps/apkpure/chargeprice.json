@@ -1,5 +1,4 @@
 {
     "name": "chargeprice-ev-map-prices",
-    "package" : "fr.chargeprice.app",
-    "version" : ""
+    "package": "fr.chargeprice.app"
 }

@@ -3,6 +3,5 @@
     "name": "klwp-live-wallpaper-maker",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "org.kustom.wallpaper",
-    "version": ""
+    "package": "org.kustom.wallpaper"
 }

@@ -3,6 +3,5 @@
     "name": "twitch",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "tv.twitch.android.app",
-    "version": ""
+    "package": "tv.twitch.android.app"
 }

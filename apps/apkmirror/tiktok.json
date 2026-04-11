@@ -4,6 +4,5 @@
     "release_prefix": "tiktok",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.zhiliaoapp.musically",
-    "version": ""
+    "package": "com.zhiliaoapp.musically"
 }

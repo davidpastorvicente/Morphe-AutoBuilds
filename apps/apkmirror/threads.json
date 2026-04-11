@@ -3,6 +3,5 @@
     "name": "threads",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.instagram.threads",
-    "version": ""
+    "package": "com.instagram.threads"
 }

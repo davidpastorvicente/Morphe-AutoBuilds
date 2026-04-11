@@ -1,5 +1,4 @@
 {
     "name": "ticktick",
-    "package": "com.ticktick.task",
-    "version": ""
+    "package": "com.ticktick.task"
 }

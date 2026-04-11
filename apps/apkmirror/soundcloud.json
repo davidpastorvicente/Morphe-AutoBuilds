@@ -3,6 +3,5 @@
     "name": "soundcloud-soundcloud",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.soundcloud.android",
-    "version": ""
+    "package": "com.soundcloud.android"
 }

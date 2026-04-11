@@ -1,1 +1,4 @@
-{"name":"viber","package":"com.viber.voip","version":""}
+{
+    "name": "viber",
+    "package": "com.viber.voip"
+}

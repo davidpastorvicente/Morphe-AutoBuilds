@@ -1,5 +1,4 @@
 {
     "name": "spotify",
-    "package": "com.spotify.music",
-    "version": ""
+    "package": "com.spotify.music"
 }

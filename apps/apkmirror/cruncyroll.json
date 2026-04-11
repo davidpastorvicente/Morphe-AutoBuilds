@@ -3,6 +3,5 @@
     "name": "crunchyroll",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.crunchyroll.crunchyroid",
-    "version": ""
+    "package": "com.crunchyroll.crunchyroid"
 }

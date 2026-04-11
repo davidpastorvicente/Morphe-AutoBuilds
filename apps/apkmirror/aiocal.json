@@ -4,6 +4,5 @@
     "release_prefix": "all-in-one-calculator",
     "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package": "all.in.one.calculator",
-    "version": ""
+    "package": "all.in.one.calculator"
 }

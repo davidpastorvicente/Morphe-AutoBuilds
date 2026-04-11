@@ -3,6 +3,5 @@
     "name": "proton-mail-encrypted-email",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "ch.protonmail.android",
-    "version": ""
+    "package": "ch.protonmail.android"
 }

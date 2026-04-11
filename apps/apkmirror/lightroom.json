@@ -3,6 +3,5 @@
     "name": "lightroom",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.adobe.lrmobile",
-    "version": ""
+    "package": "com.adobe.lrmobile"
 }

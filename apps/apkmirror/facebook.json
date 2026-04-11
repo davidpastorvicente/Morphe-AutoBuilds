@@ -3,6 +3,5 @@
     "name": "facebook",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.facebook.katana",
-    "version": ""
+    "package": "com.facebook.katana"
 }

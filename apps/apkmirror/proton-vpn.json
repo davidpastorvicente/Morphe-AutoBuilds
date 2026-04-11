@@ -3,6 +3,5 @@
     "name": "protonvpn",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "ch.protonvpn.android",
-    "version": ""
+    "package": "ch.protonvpn.android"
 }

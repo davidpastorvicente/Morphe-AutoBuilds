@@ -1,5 +1,4 @@
 {
     "name": "my-expenses",
-    "package": "org.totschnig.myexpenses",
-    "version": ""
+    "package": "org.totschnig.myexpenses"
 }

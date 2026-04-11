@@ -1,5 +1,4 @@
 {
     "name": "telegram",
-    "package": "org.telegram.messenger.web",
-    "version": ""
+    "package": "org.telegram.messenger.web"
 }

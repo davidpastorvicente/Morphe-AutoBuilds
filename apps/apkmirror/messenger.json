@@ -3,6 +3,5 @@
     "name": "messenger",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.facebook.orca",
-    "version": ""
+    "package": "com.facebook.orca"
 }

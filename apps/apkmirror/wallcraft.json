@@ -4,6 +4,5 @@
     "release_prefix": "wallpaper-4k-hd-wallcraft",
     "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package": "com.wallpaperscraft.wallpaper",
-    "version": ""
+    "package": "com.wallpaperscraft.wallpaper"
 }

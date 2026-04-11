@@ -1,5 +1,4 @@
 {
     "name": "sound-cloud-android",
-    "package" : "com.soundcloud.android",
-    "version" : ""
+    "package": "com.soundcloud.android"
 }

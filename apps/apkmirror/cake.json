@@ -3,6 +3,5 @@
     "name": "cake-lesson-updates-every-day",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "me.mycake",
-    "version": ""
+    "package": "me.mycake"
 }

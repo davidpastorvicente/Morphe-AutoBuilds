@@ -3,6 +3,5 @@
     "name": "tumblr",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.tumblr",
-    "version": ""
+    "package": "com.tumblr"
 }

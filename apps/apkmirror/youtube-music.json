@@ -3,6 +3,5 @@
     "name": "youtube-music",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.google.android.apps.youtube.music",
-    "version": ""
+    "package": "com.google.android.apps.youtube.music"
 }

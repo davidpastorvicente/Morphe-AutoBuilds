@@ -3,6 +3,5 @@
     "name": "dictionary-merriam-webster",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.merriamwebster",
-    "version": ""
+    "package": "com.merriamwebster"
 }

@@ -3,6 +3,5 @@
     "name": "disney",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.disney.disneyplus",
-    "version": ""
+    "package": "com.disney.disneyplus"
 }

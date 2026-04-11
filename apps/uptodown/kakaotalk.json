@@ -1,5 +1,4 @@
 {
     "name": "kakaotalk",
-    "package": "com.kakao.talk",
-    "version": ""
+    "package": "com.kakao.talk"
 }

@@ -1,5 +1,4 @@
 {
     "name": "debrid-stream",
-    "package" : "com.debridstream.tv",
-    "version" : ""
+    "package": "com.debridstream.tv"
 }

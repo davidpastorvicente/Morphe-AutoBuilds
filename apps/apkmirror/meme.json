@@ -4,6 +4,5 @@
     "release_prefix": "meme-generator",
     "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package": "com.zombodroid.MemeGenerator",
-    "version": ""
+    "package": "com.zombodroid.MemeGenerator"
 }

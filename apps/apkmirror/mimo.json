@@ -3,6 +3,5 @@
     "name": "mimo-learn-to-code",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.getmimo",
-    "version": ""
+    "package": "com.getmimo"
 }

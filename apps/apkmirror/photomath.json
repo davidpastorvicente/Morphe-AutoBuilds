@@ -3,6 +3,5 @@
     "name": "photomath",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.microblink.photomath",
-    "version": ""
+    "package": "com.microblink.photomath"
 }

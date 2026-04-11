@@ -3,6 +3,5 @@
     "name": "photos",
     "type": "APK",
     "dpi": "nodpi",
-    "package": "com.google.android.apps.photos",
-    "version": ""
+    "package": "com.google.android.apps.photos"
 }

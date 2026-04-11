@@ -1,5 +1,4 @@
 {
     "name": "pinterest",
-    "package" : "com.pinterest",
-    "version" : ""
+    "package": "com.pinterest"
 }

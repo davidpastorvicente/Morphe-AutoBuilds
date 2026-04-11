@@ -1,1 +1,4 @@
-{"name":"wps-office-pdf-word-excel-ppt","package":"cn.wps.moffice_eng","version":""}
+{
+    "name": "wps-office-pdf-word-excel-ppt",
+    "package": "cn.wps.moffice_eng"
+}

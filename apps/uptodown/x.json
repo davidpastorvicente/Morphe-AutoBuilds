@@ -1,5 +1,4 @@
 {
     "name": "twitter",
-    "package" : "com.twitter.android",
-    "version" : ""
+    "package": "com.twitter.android"
 }
