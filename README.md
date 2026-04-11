@@ -26,7 +26,7 @@ A Python-based pipeline that automatically fetches the latest Morphe/ReVanced to
 
 ## ⚡ Quick Downloads
 
-> Builds run automatically every 3 days. Each app gets its own release tagged `<app>-v<version>`.
+> Builds run automatically every day. Each app gets its own release tagged `<app>-v<version>`.
 
 | App | Source | Architecture | Release |
 |:----|:-------|:------------:|:--------|
@@ -42,7 +42,7 @@ A Python-based pipeline that automatically fetches the latest Morphe/ReVanced to
 
 ## ✨ Key Features
 
-- **Fully Automated** — runs every 3 days via GitHub Actions, zero manual intervention required.
+- **Fully Automated** — runs daily via GitHub Actions, zero manual intervention required.
 - **Multi-source** — tries APKMirror → APKPure → Uptodown → Aptoide in order; falls back automatically.
 - **Architecture-specific builds** — configurable per app (`arm64-v8a`, `armeabi-v7a`, `universal`).
 - **Granular patch control** — simple `+`/`-` rules in `patches/` files.
@@ -56,7 +56,7 @@ A Python-based pipeline that automatically fetches the latest Morphe/ReVanced to
 ```text
 Morphe-AutoBuilds/
 ├── .github/workflows/
-│   ├── patch.yml           # Scheduled build (every 3 days)
+│   ├── patch.yml           # Scheduled build (daily)
 │   └── manual-patch.yml    # Manual trigger with override options
 ├── apps/                   # Per-app, per-platform scraper configs
 │   ├── apkmirror/          # APKMirror definitions
@@ -161,7 +161,7 @@ python -m src
 
 ### Scheduled Build (`patch.yml`)
 
-- Runs every 3 days at 06:00 UTC (also triggerable manually).
+- Runs daily at 06:00 UTC (also triggerable manually).
 - Builds a matrix job per app in `patch-config.json`.
 - Skips apps whose release tag already exists.
 - Creates a GitHub release tagged `<app_name>-v<version>`.
