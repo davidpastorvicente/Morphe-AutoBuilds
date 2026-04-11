@@ -1,7 +1,7 @@
 {
     "org": "redditinc",
     "name": "reddit",
-    "type": "",
-    "dpi": "",
+    "type": "BUNDLE",
+    "dpi": "120-640dpi",
     "package": "com.reddit.frontpage"
 }
