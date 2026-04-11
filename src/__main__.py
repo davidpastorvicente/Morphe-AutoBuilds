@@ -1,5 +1,6 @@
 """Entry-point for building patched APKs."""
 
+import json
 import logging
 import re
 import subprocess
@@ -361,11 +362,23 @@ def run_build(
     return str(signed_apk)
 
 
+def resolve_arch(app_name: str, source: str) -> list[str]:
+    """Return the arch list for *app_name*/*source* from patch-config.json."""
+    config_path = Path("patch-config.json")
+    if config_path.exists():
+        with open(config_path, encoding="utf-8") as fh:
+            patch_list = json.load(fh).get("patch_list", [])
+        for entry in patch_list:
+            if entry["app_name"] == app_name and entry["source"] == source:
+                arch = entry.get("arch", ["universal"])
+                return arch if isinstance(arch, list) else [arch]
+    return ["universal"]
+
+
 def main():
     """CLI entry-point: read env vars and build for each arch."""
     app_name = getenv("APP_NAME")
     source = getenv("SOURCE")
-    arch_env = getenv("ARCH") or "universal"
 
     if not app_name or not source:
         logging.error(
@@ -373,7 +386,12 @@ def main():
         )
         sys.exit(1)
 
-    arches = [a.strip() for a in arch_env.split(",") if a.strip()]
+    arch_override = getenv("ARCH")
+    if arch_override:
+        arches = [a.strip() for a in arch_override.split(",") if a.strip()]
+    else:
+        arches = resolve_arch(app_name, source)
+
     built_apks: list[str] = []
     for arch in arches:
         logging.info("🔨 Building %s for %s architecture...", app_name, arch)

@@ -26,7 +26,8 @@ jobs:
           script: |
             const fs = require('fs');
             const path = './patch-config.json';
-            const matrix = JSON.parse(fs.readFileSync(path, 'utf8')).patch_list;
+            const matrix = JSON.parse(fs.readFileSync(path, 'utf8')).patch_list
+              .map(({ app_name, source }) => ({ app_name, source }));
             core.setOutput("matrix", JSON.stringify(matrix));
 
   build-apps:
@@ -60,17 +61,17 @@ jobs:
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
-          ARCH: ${{ join(matrix.arch, ',') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
           import os
           from src import release
-          from src.__main__ import resolve_build_inputs, resolve_download_target
+          from src.__main__ import resolve_arch, resolve_build_inputs, resolve_download_target
           
           app_name = os.environ["APP_NAME"]
           source = os.environ["SOURCE"]
-          arch = os.environ.get("ARCH", "universal").split(",")[0].strip()
+          arches = resolve_arch(app_name, source)
+          arch = arches[0]
           _, _, cli, patches, _ = resolve_build_inputs(source)
           if not cli or not patches:
               raise SystemExit("Failed to resolve CLI or patches")
@@ -89,7 +90,8 @@ jobs:
               fh.write(f"app_title={app_title}\n")
               fh.write(f"cli_version={cli_version}\n")
               fh.write(f"patches_version={patches_version}\n")
-          print(f"Resolved {app_name} -> {version} ({tag})")
+              fh.write(f"arch={', '.join(arches)}\n")
+          print(f"Resolved {app_name} -> {version} ({tag}) [{arch}]")
           PY
 
       - name: Check Existing Release
@@ -111,7 +113,6 @@ jobs:
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
-          ARCH: ${{ join(matrix.arch, ',') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Building ${{ matrix.app_name }} with ${{ matrix.source }}..."
@@ -131,7 +132,7 @@ jobs:
         env:
           APP_TITLE: ${{ steps.resolve-version.outputs.app_title }}
           SOURCE: ${{ matrix.source }}
-          ARCH: ${{ join(matrix.arch, ', ') }}
+          ARCH: ${{ steps.resolve-version.outputs.arch }}
           VERSION: ${{ steps.resolve-version.outputs.version }}
           CLI_VERSION: ${{ steps.resolve-version.outputs.cli_version }}
           PATCHES_VERSION: ${{ steps.resolve-version.outputs.patches_version }}
