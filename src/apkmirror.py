@@ -3,7 +3,7 @@ import json
 import logging
 from bs4 import BeautifulSoup
 from urllib.parse import quote
-from src import session
+from src import session, utils
 
 base_url = "https://www.apkmirror.com"
 
@@ -349,56 +349,98 @@ def get_architecture_criteria(arch: str) -> dict:
     return arch_mapping.get(arch, "universal")
     
 def get_latest_version(app_name: str, config: dict) -> str:
-    # First try: get from main app page
+    target_arch = config.get("arch", "")
+    target_dpi = config.get("dpi", "")
+
+    def extract_variant_versions(soup: BeautifulSoup) -> list[str]:
+        versions = []
+
+        for row in soup.find_all("div", class_="table-row headerFont"):
+            row_text = " ".join(row.get_text(" ", strip=True).split())
+            lowered = row_text.lower()
+            if "latest:" not in lowered or "alpha" in lowered or "beta" in lowered:
+                continue
+            if target_arch and target_arch not in row_text:
+                continue
+            if target_dpi and target_dpi not in row_text:
+                continue
+
+            latest_part = row_text.split("Latest:", 1)[1].split(" on ", 1)[0].strip()
+            if latest_part:
+                versions.append(latest_part)
+
+        return versions
+
+    def extract_versions(soup: BeautifulSoup) -> list[str]:
+        versions = []
+        version_pattern = re.compile(r'\d+(\.\d+)*(-[a-zA-Z0-9]+(\.\d+)*)*')
+        app_path_prefix = f"/apk/{config['org']}/{config['name']}/"
+
+        for row in soup.find_all("div", class_="appRow"):
+            title = row.find("h5", class_="appRowTitle")
+            link = title.find("a") if title else None
+            href = link.get("href", "") if link else ""
+            if not href.startswith(app_path_prefix):
+                continue
+
+            version_text = link.get_text(strip=True) if link else ""
+            lowered = version_text.lower()
+            if not version_text or "alpha" in lowered or "beta" in lowered:
+                continue
+
+            match = version_pattern.search(version_text)
+            if not match:
+                continue
+
+            version = match.group()
+            version_parts = version.split('.')
+            base_version_parts = []
+            for part in version_parts:
+                if part.isdigit():
+                    base_version_parts.append(part)
+                else:
+                    break
+            if not base_version_parts:
+                continue
+
+            parsed_version = ".".join(base_version_parts)
+
+            build_match = re.search(r'\((\d+)\)', version_text)
+            if build_match:
+                parsed_version = f"{parsed_version}({build_match.group(1)})"
+            else:
+                build_match = re.search(r'build\s+(\d+)', version_text, re.IGNORECASE)
+                if build_match:
+                    parsed_version = f"{parsed_version} build {build_match.group(1)}"
+
+            versions.append(parsed_version)
+
+        return versions
+
+    main_url = f"{base_url}/apk/{config['org']}/{config['name']}/"
     try:
-        main_url = f"{base_url}/apk/{config['org']}/{config['name']}/"
         response = session.get(main_url)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, "html.parser")
-            # Try to find version in the page
-            version_elem = soup.find('span', string=re.compile(r'\d+\.\d+'))
-            if version_elem:
-                version_text = version_elem.text.strip()
-                match = re.search(r'(\d+(\.\d+)+)', version_text)
-                if match:
-                    return match.group(1)
-    except:
-        pass  # If fails, continue to original method
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content, "html.parser")
+        latest = utils.get_highest_version(extract_variant_versions(soup))
+        if latest:
+            return latest
+
+        latest = utils.get_highest_version(extract_versions(soup))
+        if latest:
+            return latest
+    except Exception as e:
+        logging.debug(f"Could not fetch latest version from main app page: {e}")
     
-    # Original method (keep exactly as you had it)
     url = f"{base_url}/uploads/?appcategory={config['name']}"
-    
     response = session.get(url)
     response.raise_for_status()
     content_size = len(response.content)
     logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> \"-\" [1]")
     soup = BeautifulSoup(response.content, "html.parser")
 
-    app_rows = soup.find_all("div", class_="appRow")
-    version_pattern = re.compile(r'\d+(\.\d+)*(-[a-zA-Z0-9]+(\.\d+)*)*')
-
-    for row in app_rows:
-        version_text = row.find("h5", class_="appRowTitle").a.text.strip()
-        if "alpha" not in version_text.lower() and "beta" not in version_text.lower():
-            match = version_pattern.search(version_text)
-            if match:
-                version = match.group()
-                version_parts = version.split('.')
-                base_version_parts = []
-                for part in version_parts:
-                    if part.isdigit():
-                        base_version_parts.append(part)
-                    else:
-                        break
-                if base_version_parts:
-                    base_version = '.'.join(base_version_parts)
-                    
-                    # Check for build number in parentheses like "32.30.0(1575420)"
-                    build_match = re.search(r'\((\d+)\)', version_text)
-                    if build_match:
-                        build_number = build_match.group(1)
-                        return f"{base_version}({build_number})"
-                    
-                    return base_version
+    latest = utils.get_highest_version(extract_versions(soup))
+    if latest:
+        return latest
 
     return None
