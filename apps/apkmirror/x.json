@@ -1,6 +1,7 @@
 {
     "org": "x-corp",
     "name": "twitter",
+    "release_prefix": "x",
     "type": "BUNDLE",
     "arch": "universal",
     "dpi": "120-640dpi",
