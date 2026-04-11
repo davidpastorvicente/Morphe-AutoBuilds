@@ -2,9 +2,8 @@
     "org": "windyty-se",
     "name": "windy-wind-waves-and-hurricanes-forecast",
     "release_prefix": "windy-com-weather-forecast",
-    "type": "BUNDLE", 
-    "arch": "universal",
+    "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package" : "com.windyty.android",
-    "version" : ""
+    "package": "com.windyty.android",
+    "version": ""
 }

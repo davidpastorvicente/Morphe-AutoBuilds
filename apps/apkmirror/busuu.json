@@ -2,9 +2,8 @@
     "org": "busuu",
     "name": "busuu-learn-languages",
     "release_prefix": "busuu-learn-speak-languages",
-    "type": "BUNDLE", 
-    "arch": "universal",
+    "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package" : "com.busuu.android.enc",
-    "version" : ""
+    "package": "com.busuu.android.enc",
+    "version": ""
 }

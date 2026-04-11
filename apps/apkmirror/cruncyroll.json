@@ -2,7 +2,6 @@
     "org": "crunchyroll",
     "name": "crunchyroll",
     "type": "APK",
-    "arch": "universal",
     "dpi": "nodpi",
     "package": "com.crunchyroll.crunchyroid",
     "version": ""

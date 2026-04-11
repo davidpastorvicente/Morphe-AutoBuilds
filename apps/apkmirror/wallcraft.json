@@ -2,9 +2,8 @@
     "org": "nebuchadnezzar-doo",
     "name": "wallpapers-hd-4k-backgrounds",
     "release_prefix": "wallpaper-4k-hd-wallcraft",
-    "type": "BUNDLE", 
-    "arch": "universal",
+    "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package" : "com.wallpaperscraft.wallpaper",
-    "version" : ""
+    "package": "com.wallpaperscraft.wallpaper",
+    "version": ""
 }

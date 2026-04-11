@@ -1,9 +1,8 @@
 {
     "org": "transit-app-inc",
     "name": "transit-real-time-transit-app",
-    "type": "APK", 
-    "arch": "universal",
+    "type": "APK",
     "dpi": "120-640dpi",
-    "package" : "com.thetransitapp.droid",
-    "version" : ""
+    "package": "com.thetransitapp.droid",
+    "version": ""
 }

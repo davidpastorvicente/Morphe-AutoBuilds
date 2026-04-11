@@ -2,9 +2,8 @@
     "org": "letterboxd-limited",
     "name": "letterboxd",
     "release_prefix": "busuu-learn-speak-languages",
-    "type": "BUNDLE", 
-    "arch": "universal",
+    "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package" : "com.letterboxd.letterboxd",
-    "version" : "3.2.10"
+    "package": "com.letterboxd.letterboxd",
+    "version": "3.2.10"
 }

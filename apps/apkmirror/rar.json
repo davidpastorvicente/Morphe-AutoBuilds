@@ -2,7 +2,6 @@
     "org": "rarlab-published-by-win-rar-gmbh",
     "name": "rar",
     "type": "APK",
-    "arch": "universal",
     "dpi": "nodpi",
     "package": "com.rarlab.rar",
     "version": ""

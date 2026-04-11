@@ -1,10 +1,9 @@
 {
     "org": "smart-launcher-team",
     "name": "smart-launcher",
-    "release_prefix": "smart-launcher-6-‧-home-screen",
-    "type": "APK", 
-    "arch": "universal",
+    "release_prefix": "smart-launcher-6-\u2027-home-screen",
+    "type": "APK",
     "dpi": "nodpi",
-    "package" : "ginlemon.flowerfree",
-    "version" : ""
+    "package": "ginlemon.flowerfree",
+    "version": ""
 }

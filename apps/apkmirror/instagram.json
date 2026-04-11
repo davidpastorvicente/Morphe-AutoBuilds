@@ -2,9 +2,8 @@
     "org": "instagram",
     "name": "instagram-instagram",
     "release_prefix": "instagram",
-    "type": "BUNDLE", 
-    "arch": "universal",
+    "type": "BUNDLE",
     "dpi": "120-640dpi",
-    "package" : "com.instagram.android",
-    "version" : ""
+    "package": "com.instagram.android",
+    "version": ""
 }

@@ -1,9 +1,8 @@
 {
     "org": "redditinc",
     "name": "reddit",
-    "type": "", 
-    "arch": "",
+    "type": "",
     "dpi": "",
-    "package" : "com.reddit.frontpage",
-    "version" : ""
+    "package": "com.reddit.frontpage",
+    "version": ""
 }

@@ -1,9 +1,8 @@
 {
     "org": "soundcloud",
     "name": "soundcloud-soundcloud",
-    "type": "APK", 
-    "arch": "universal",
+    "type": "APK",
     "dpi": "nodpi",
-    "package" : "com.soundcloud.android",
-    "version" : ""
+    "package": "com.soundcloud.android",
+    "version": ""
 }

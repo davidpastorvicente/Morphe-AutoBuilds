@@ -1,9 +1,8 @@
 {
     "org": "neatbytes",
     "name": "solid-explorer-file-manager",
-    "type": "APK", 
-    "arch": "universal",
+    "type": "APK",
     "dpi": "nodpi",
-    "package" : "pl.solidexplorer2",
-    "version" : ""
+    "package": "pl.solidexplorer2",
+    "version": ""
 }
