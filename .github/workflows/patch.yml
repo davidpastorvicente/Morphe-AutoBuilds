@@ -132,25 +132,12 @@ jobs:
         run: |
           app_title=$(echo "${APP_NAME}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
           {
-            echo "# ${app_title}"
-            echo
+            echo "- **App:** \`${app_title}\`"
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${SOURCE}\`"
             echo "- **Patches version:** \`${PATCHES_VERSION}\`"
             echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-            echo
-            echo "## Assets"
-            echo
-            for apk in *.apk; do
-              [ -f "$apk" ] || continue
-              echo "- \`$(basename "$apk")\`"
-            done
-            echo
-            echo "## Notes"
-            echo
-            echo "- This release contains only **${APP_NAME}** artifacts."
-            echo "- If release \`${APP_NAME}-v${VERSION}\` already exists, the workflow skips rebuilding and republishing this app."
           } > release_notes.md
 
       - name: Create App Release

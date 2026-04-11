@@ -180,26 +180,13 @@ jobs:
           PATCHES_VERSION: ${{ steps.build-meta.outputs.patches_version }}
         run: |
           {
-            echo "# ${RELEASE_TITLE% v${VERSION}}"
-            echo
+            echo "- **App:** \`${{ inputs.app_name }}\`"
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${{ inputs.source }}\`"
             echo "- **Requested architecture:** \`${{ inputs.architecture }}\`"
             echo "- **Patches version:** \`${PATCHES_VERSION}\`"
             echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-            echo
-            echo "## Assets"
-            echo
-            for apk in *.apk; do
-              [ -f "$apk" ] || continue
-              echo "- \`$apk\`"
-            done
-            echo
-            echo "## Notes"
-            echo
-            echo "- This release contains only **${{ inputs.app_name }}** artifacts."
-            echo "- Manual rebuilds can replace assets in the same app/version release when \`replace_in_release\` is enabled."
           } > release_notes.md
 
           if [ "${{ steps.check-release.outputs.release_exists }}" == "true" ]; then
