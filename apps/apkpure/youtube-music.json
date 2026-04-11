@@ -1,5 +1,5 @@
 {
     "name": "youtube",
-    "package" : "com.google.android.youtube",
+    "package" : "com.google.android.apps.youtube.music",
     "version" : ""
 }
