@@ -102,7 +102,7 @@ jobs:
           if not version:
               raise SystemExit("Failed to resolve target version")
 
-          app_title = app_name.replace("-", " ").title()
+          app_title = app_name.replace("-", " ").title().replace("Youtube", "YouTube")
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write(f"version={version}\n")
               fh.write(f"release_tag={app_name}-v{version}\n")
