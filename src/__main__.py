@@ -316,7 +316,7 @@ def run_build(
     logging.info("✅ Using patches: %s", patches.name)
 
     download_link, version = resolve_download_target(
-        app_name, str(cli), str(patches)
+        app_name, str(cli), str(patches), arch
     )
     input_apk = None
     if download_link:
@@ -324,10 +324,7 @@ def run_build(
 
     if input_apk is None:
         logging.error("❌ Failed to download APK for %s", app_name)
-        logging.error(
-            "All download sources failed. Skipping this app."
-        )
-        return None
+        sys.exit(1)
 
     if input_apk.suffix != ".apk":
         input_apk = _merge_bundle_apk(input_apk)
