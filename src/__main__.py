@@ -362,10 +362,10 @@ def run_build(
 
 
 def main():
-    """CLI entry-point: read env vars and build."""
+    """CLI entry-point: read env vars and build for each arch."""
     app_name = getenv("APP_NAME")
     source = getenv("SOURCE")
-    arch = getenv("ARCH") or "universal"
+    arch_env = getenv("ARCH") or "universal"
 
     if not app_name or not source:
         logging.error(
@@ -373,10 +373,18 @@ def main():
         )
         sys.exit(1)
 
-    logging.info("🔨 Building %s for %s architecture...", app_name, arch)
-    apk_path = run_build(app_name, source, arch)
-    if apk_path:
-        print(f"🎯 Final APK: {Path(apk_path).name}")
+    arches = [a.strip() for a in arch_env.split(",") if a.strip()]
+    built_apks: list[str] = []
+    for arch in arches:
+        logging.info("🔨 Building %s for %s architecture...", app_name, arch)
+        apk_path = run_build(app_name, source, arch)
+        if apk_path:
+            built_apks.append(apk_path)
+            print(f"✅ Built {arch}: {Path(apk_path).name}")
+
+    print(f"\n🎯 Built {len(built_apks)} APK(s) for {app_name}:")
+    for apk in built_apks:
+        print(f"  📱 {Path(apk).name}")
 
 
 if __name__ == "__main__":

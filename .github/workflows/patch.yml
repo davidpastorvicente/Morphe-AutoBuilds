@@ -109,7 +109,7 @@ jobs:
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
-          ARCH: ${{ matrix.arch }}
+          ARCH: ${{ join(matrix.arch, ',') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Building ${{ matrix.app_name }} with ${{ matrix.source }}..."
@@ -127,25 +127,18 @@ jobs:
       - name: Generate Release Notes
         if: steps.check-release.outputs.skip_build != 'true'
         env:
-          APP_NAME: ${{ matrix.app_name }}
           APP_TITLE: ${{ steps.resolve-version.outputs.app_title }}
           SOURCE: ${{ matrix.source }}
+          ARCH: ${{ join(matrix.arch, ', ') }}
           VERSION: ${{ steps.resolve-version.outputs.version }}
           CLI_VERSION: ${{ steps.resolve-version.outputs.cli_version }}
           PATCHES_VERSION: ${{ steps.resolve-version.outputs.patches_version }}
         run: |
-          apk_file=$(ls *.apk 2>/dev/null | head -1)
-          if [ -n "$apk_file" ]; then
-            rest="${apk_file#${APP_NAME}-}"
-            arch="${rest%%-${SOURCE}*}"
-          else
-            arch="unknown"
-          fi
           {
             echo "- **App:** \`${APP_TITLE}\`"
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${SOURCE}\`"
-            echo "- **Architecture:** \`${arch}\`"
+            echo "- **Architecture:** \`${ARCH}\`"
             echo "- **Patches version:** \`${PATCHES_VERSION}\`"
             echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
