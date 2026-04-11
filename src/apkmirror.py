@@ -1,379 +1,516 @@
-import re
-import json
+"""APKMirror scraper: resolve download links and latest versions."""
+
 import logging
-from bs4 import BeautifulSoup
+import re
 from urllib.parse import quote
+
+from bs4 import BeautifulSoup
+from curl_cffi.requests import RequestsError
+
 from src import session, utils
 
-base_url = "https://www.apkmirror.com"
+BASE_URL = "https://www.apkmirror.com"
 
-def get_build_number_for_version(version: str, config: dict) -> tuple[str | None, str]:
-    """Fetch build number for a specific version from APKMirror.
-    Returns (build_number, format_type) where format_type is 'parentheses' or 'build_suffix'.
-    Returns the LOWEST build number found, since patches are typically made for initial builds."""
+
+def _absolute_url(href: str) -> str:
+    """Convert a relative href to an absolute APKMirror URL."""
+    return href if href.startswith("http") else BASE_URL + href
+
+
+# ---------------------------------------------------------------------------
+# Build-number helpers
+# ---------------------------------------------------------------------------
+
+def _parse_build_from_version(version: str) -> tuple[str, str | None, str | None]:
+    """Strip an inline build number from *version* and return
+    ``(clean_version, build_number, build_format)``.
+    """
+    match = re.search(r'\((\d+)\)$', version)
+    if match:
+        return version[:match.start()], match.group(1), 'parentheses'
+
+    match = re.search(r'\s+build\s+(\d+)$', version, re.IGNORECASE)
+    if match:
+        return version[:match.start()], match.group(1), 'build_suffix'
+
+    return version, None, None
+
+
+def get_build_number_for_version(
+    version: str, config: dict
+) -> tuple[str | None, str | None]:
+    """Fetch the lowest build number for *version* from APKMirror."""
     try:
-        main_url = f"{base_url}/apk/{config['org']}/{config['name']}/"
+        main_url = f"{BASE_URL}/apk/{config['org']}/{config['name']}/"
         response = session.get(main_url)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.content, "html.parser")
-            # Collect all build numbers for this version
-            builds_found = []
-            for link in soup.find_all('a', href=True):
-                text = link.get_text()
-                if version in text:
-                    # Format 1: "32.30.0(1575420)" -> parentheses
-                    build_match = re.search(rf'{re.escape(version)}\((\d+)\)', text)
-                    if build_match:
-                        builds_found.append((build_match.group(1), 'parentheses'))
-                    # Format 2: "6.6 build 006" -> build suffix
-                    build_match = re.search(rf'{re.escape(version)}\s+build\s+(\d+)', text, re.IGNORECASE)
-                    if build_match:
-                        builds_found.append((build_match.group(1), 'build_suffix'))
-            
-            # Return the lowest build number (patches are typically for initial builds)
-            if builds_found:
-                # Sort by build number (as integer) and return the lowest
-                builds_found.sort(key=lambda x: int(x[0]))
-                return builds_found[0]
-    except Exception as e:
-        logging.debug(f"Could not fetch build number: {e}")
+        if response.status_code != 200:
+            return None, None
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        builds_found: list[tuple[str, str]] = []
+        escaped = re.escape(version)
+        for link in soup.find_all('a', href=True):
+            text = link.get_text()
+            if version not in text:
+                continue
+            m = re.search(rf'{escaped}\((\d+)\)', text)
+            if m:
+                builds_found.append((m.group(1), 'parentheses'))
+            m = re.search(
+                rf'{escaped}\s+build\s+(\d+)', text, re.IGNORECASE
+            )
+            if m:
+                builds_found.append((m.group(1), 'build_suffix'))
+
+        if builds_found:
+            builds_found.sort(key=lambda x: int(x[0]))
+            return builds_found[0]
+    except (RequestsError, KeyError):
+        logging.debug("Could not fetch build number for %s", version)
     return None, None
 
-def get_download_link(version: str, app_name: str, config: dict, arch: str = None) -> str: 
+
+# ---------------------------------------------------------------------------
+# URL-pattern generation
+# ---------------------------------------------------------------------------
+
+def _build_version_slug(
+    version_parts: list[str],
+    count: int,
+    build_number: str | None,
+    build_format: str | None,
+) -> str:
+    """Return the dash-separated version slug used in APKMirror URLs."""
+    slug = "-".join(version_parts[:count])
+    if build_number and count == len(version_parts):
+        if build_format == 'build_suffix':
+            slug = slug + "-build-" + build_number
+        else:
+            parts = list(version_parts[:count])
+            parts[-1] = parts[-1] + build_number
+            slug = "-".join(parts)
+    return slug
+
+
+def _generate_url_patterns(
+    config: dict,
+    release_name: str,
+    ver_slug: str,
+) -> list[str]:
+    """Return deduplicated candidate release-page URLs in priority order."""
+    enc_release = quote(release_name, safe='')
+    enc_name = quote(config['name'], safe='')
+    org = config['org']
+    base = f"{BASE_URL}/apk/{org}/{enc_name}"
+    patterns: list[str] = [
+        f"{base}/{enc_release}-{ver_slug}-release/",
+    ]
+    if release_name != config['name']:
+        patterns.append(
+            f"{base}/{enc_name}-{ver_slug}-release/"
+        )
+    patterns.append(f"{base}/{enc_release}-{ver_slug}/")
+    if release_name != config['name']:
+        patterns.append(f"{base}/{enc_name}-{ver_slug}/")
+    return list(dict.fromkeys(patterns))
+
+
+# ---------------------------------------------------------------------------
+# Page-validation helpers
+# ---------------------------------------------------------------------------
+
+def _version_checks(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    version: str,
+    ver_slug: str,
+    version_parts: list[str],
+    part_count: int,
+    build_number: str | None,
+    build_format: str | None,
+) -> list[str]:
+    """Build the list of strings we accept as proof that the page
+    matches the requested version."""
+    checks = [
+        version,
+        version.replace('.', '-'),
+        ver_slug,
+        ".".join(version_parts[:part_count]),
+    ]
+    if build_number:
+        if build_format == 'build_suffix':
+            checks.append(f"{version} build {build_number}")
+            checks.append(
+                f"{version.replace('.', '-')}-build-{build_number}"
+            )
+        else:
+            checks.append(f"{version}({build_number})")
+    return checks
+
+
+def _is_version_page(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    soup: BeautifulSoup,
+    version: str,
+    ver_slug: str,
+    version_parts: list[str],
+    part_count: int,
+    build_number: str | None,
+    build_format: str | None,
+) -> bool:
+    """Return *True* when *soup* belongs to the requested version."""
+    checks = _version_checks(
+        version, ver_slug, version_parts, part_count,
+        build_number, build_format,
+    )
+    page_text = soup.get_text()
+    for chk in checks:
+        if chk and chk in page_text:
+            if chk in (
+                version, version.replace('.', '-'), ver_slug
+            ):
+                return True
+
+    for heading in soup.find_all(['h1', 'h2', 'h3']):
+        for chk in checks:
+            if chk and chk in heading.get_text():
+                return True
+
+    title_tag = soup.find('title')
+    if title_tag:
+        title_text = title_tag.get_text()
+        for chk in checks:
+            if chk and chk in title_text:
+                return True
+
+    return False
+
+
+# ---------------------------------------------------------------------------
+# Variant finder
+# ---------------------------------------------------------------------------
+
+def _find_variant_url(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    soup: BeautifulSoup,
+    version: str,
+    target_arch: str,
+    target_dpi: str,
+    requested_type: str,
+    app_name: str,
+) -> str | None:
+    """Locate the download-page URL for the best matching variant row."""
+
+    def _row_matches(row_text: str) -> bool:
+        normalized = " ".join(row_text.split())
+        return (
+            (not target_arch or target_arch in normalized)
+            and (not target_dpi or target_dpi in normalized)
+        )
+
+    rows = soup.find_all('div', class_='table-row headerFont')
+
+    for row in rows:
+        row_text = row.get_text()
+        if version not in row_text and version.replace('.', '-') not in row_text:
+            continue
+        if _row_matches(row_text):
+            sub = row.find('a', class_='accent_color')
+            if sub:
+                return BASE_URL + sub['href']
+
+    for row in rows:
+        row_text = row.get_text()
+        if not _row_matches(row_text):
+            continue
+        if re.search(r'\d+(\.\d+)+', row_text):
+            sub = row.find('a', class_='accent_color')
+            if sub:
+                match = re.search(r'(\d+(\.\d+)+(\.\w+)*)', row_text)
+                if match:
+                    logging.warning(
+                        "Using variant %s (criteria match)",
+                        match.group(1),
+                    )
+                return BASE_URL + sub['href']
+
+    logging.error(
+        "No variant found for %s %s with criteria "
+        "[type=%r, arch=%r, dpi=%r]",
+        app_name, version, requested_type, target_arch, target_dpi,
+    )
+    logging.debug("Found %d rows total", len(rows))
+    for idx, row in enumerate(rows[:5]):
+        logging.debug("Row %d: %s...", idx, row.get_text()[:100])
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Download-flow helpers
+# ---------------------------------------------------------------------------
+
+def _find_release_link(
+    soup: BeautifulSoup, version: str
+) -> str | None:
+    """Find a release-page anchor that matches *version*."""
+    for anchor in soup.find_all("a", href=True):
+        href = anchor["href"]
+        classes = anchor.get("class", [])
+        text = " ".join(anchor.get_text(" ", strip=True).split())
+        if "android-apk-download" not in href:
+            continue
+        if version not in text and version not in href:
+            continue
+        if {"downloadLink", "fontBlack", "accent_color"} & set(classes):
+            return _absolute_url(href)
+    return None
+
+
+def _find_direct_download(
+    soup: BeautifulSoup, requested_type: str
+) -> str | None:
+    """Locate a direct-download link on *soup*."""
+    button = soup.find("a", id="download-link")
+    if button and button.get("href"):
+        return _absolute_url(button["href"])
+
+    for anchor in soup.find_all("a", href=True):
+        href = anchor["href"]
+        classes = anchor.get("class", [])
+        rel = anchor.get("rel", [])
+        text = " ".join(anchor.get_text(" ", strip=True).split())
+        if "download.php" in href:
+            return _absolute_url(href)
+        if "nofollow" in rel and "/download/" in href:
+            return _absolute_url(href)
+        if "downloadButton" not in classes:
+            continue
+        if "/download/" in href or "Download APK" in text:
+            if (
+                requested_type != "BUNDLE"
+                or "Bundle" in text
+                or "/download/" in href
+            ):
+                return _absolute_url(href)
+    return None
+
+
+def _follow_download_chain(
+    download_page_url: str,
+    version: str,
+    requested_type: str,
+) -> str | None:
+    """Navigate from the variant page through intermediate pages
+    and return the final direct-download URL."""
+    response = session.get(download_page_url)
+    response.raise_for_status()
+    csize = len(response.content)
+    logging.info(
+        "URL:%s [%d/%d] -> Variant Page", response.url, csize, csize
+    )
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    url = _resolve_keyed_download(soup, requested_type)
+    if url:
+        return url
+
+    release_url = _find_release_link(soup, version)
+    if release_url:
+        response = session.get(release_url)
+        response.raise_for_status()
+        csize = len(response.content)
+        logging.info(
+            "URL:%s [%d/%d] -> Download Page",
+            response.url, csize, csize,
+        )
+        soup = BeautifulSoup(response.content, "html.parser")
+        url = _resolve_keyed_download(soup, requested_type)
+        if url:
+            return url
+
+    return None
+
+
+def _resolve_keyed_download(
+    soup: BeautifulSoup, requested_type: str
+) -> str | None:
+    """Handle the optional ``/download/?key=`` redirect."""
+    url = _find_direct_download(soup, requested_type)
+    if not url:
+        return None
+    if "/download/?key=" in url:
+        response = session.get(url)
+        response.raise_for_status()
+        csize = len(response.content)
+        logging.info(
+            "URL:%s [%d/%d] -> Keyed Download Page",
+            response.url, csize, csize,
+        )
+        soup = BeautifulSoup(response.content, "html.parser")
+        url = _find_direct_download(soup, requested_type)
+    return url
+
+
+# ---------------------------------------------------------------------------
+# Release-page search
+# ---------------------------------------------------------------------------
+
+def _search_release_pages(
+    version: str,
+    config: dict,
+    build_number: str | None,
+    build_format: str | None,
+) -> tuple[BeautifulSoup | None, bool]:
+    """Walk version-part truncations and URL patterns to locate the
+    correct release page.  Returns ``(soup, is_exact_match)``."""
+    version_parts = version.split('.')
+    release_name = config.get('release_prefix', config['name'])
+    found_soup: BeautifulSoup | None = None
+    correct = False
+
+    for i in range(len(version_parts), 0, -1):
+        ver_slug = _build_version_slug(
+            version_parts, i, build_number, build_format
+        )
+        urls = _generate_url_patterns(config, release_name, ver_slug)
+
+        for url in urls:
+            logging.info("Checking potential release URL: %s", url)
+            try:
+                response = session.get(url)
+            except RequestsError as exc:
+                logging.warning(
+                    "Error checking %s: %.50s", url, str(exc)
+                )
+                continue
+
+            if response.status_code == 404:
+                logging.info("URL not found (404): %s", url)
+                continue
+            if response.status_code != 200:
+                logging.warning(
+                    "URL %s returned status %s",
+                    url, response.status_code,
+                )
+                continue
+
+            soup = BeautifulSoup(response.content, "html.parser")
+            if _is_version_page(
+                soup, version, ver_slug, version_parts, i,
+                build_number, build_format,
+            ):
+                logging.info(
+                    "✓ Correct version page found: %s", response.url
+                )
+                return soup, True
+
+            logging.warning(
+                "Page found but not for version %s: %s", version, url
+            )
+            if found_soup is None:
+                found_soup = soup
+                logging.warning(
+                    "Saved as fallback page (may list multiple versions)"
+                )
+
+        if correct:
+            break
+
+    return found_soup, False
+
+
+# ===================================================================
+# Public API
+# ===================================================================
+
+def get_download_link(
+    version: str,
+    _app_name: str,
+    config: dict,
+    arch: str = None,
+) -> str | None:
+    """Return a direct APKMirror download URL for the requested app
+    *version*, or *None* when no suitable link can be found."""
     target_arch = arch if arch else config.get('arch', 'universal')
     target_dpi = config.get('dpi', '')
     requested_type = config.get('type', '')
-    
-    # --- UNIVERSAL URL FINDER WITH VALIDATION ---
-    # Extract build number if present (e.g., "32.30.0(1575420)" -> version="32.30.0", build="1575420")
-    build_number = None
-    build_format = None
-    
-    # Check for parentheses format: "32.30.0(1575420)"
-    build_match = re.search(r'\((\d+)\)$', version)
-    if build_match:
-        build_number = build_match.group(1)
-        build_format = 'parentheses'
-        version = version[:build_match.start()]
-    else:
-        # Check for build suffix format: "6.6 build 002"
-        build_match = re.search(r'\s+build\s+(\d+)$', version, re.IGNORECASE)
-        if build_match:
-            build_number = build_match.group(1)
-            build_format = 'build_suffix'
-            version = version[:build_match.start()]
-        else:
-            # Try to fetch build number from APKMirror for this version
-            build_number, build_format = get_build_number_for_version(version, config)
-            if build_number:
-                logging.info(f"Found build number {build_number} for version {version} (format: {build_format})")
-    
-    version_parts = version.split('.')
-    found_soup = None
-    correct_version_page = False
-    
-    # Use release_prefix if available, otherwise use app name
-    release_name = config.get('release_prefix', config['name'])
 
-    def row_matches(row_text: str) -> bool:
-        normalized = " ".join(row_text.split())
-        arch_matches = not target_arch or target_arch in normalized
-        dpi_matches = not target_dpi or target_dpi in normalized
-        return arch_matches and dpi_matches
-
-    def absolute_url(href: str) -> str:
-        return href if href.startswith("http") else base_url + href
-
-    def find_release_link(soup: BeautifulSoup) -> str | None:
-        for anchor in soup.find_all("a", href=True):
-            href = anchor["href"]
-            classes = anchor.get("class", [])
-            text = " ".join(anchor.get_text(" ", strip=True).split())
-            if "android-apk-download" not in href:
-                continue
-            if version not in text and version not in href:
-                continue
-            if "downloadLink" in classes or "fontBlack" in classes or "accent_color" in classes:
-                return absolute_url(href)
-        return None
-
-    def find_direct_download(soup: BeautifulSoup) -> str | None:
-        button = soup.find("a", id="download-link")
-        if button and button.get("href"):
-            return absolute_url(button["href"])
-
-        for anchor in soup.find_all("a", href=True):
-            href = anchor["href"]
-            classes = anchor.get("class", [])
-            rel = anchor.get("rel", [])
-            text = " ".join(anchor.get_text(" ", strip=True).split())
-            if "download.php" in href:
-                return absolute_url(href)
-            if "nofollow" in rel and "/download/" in href:
-                return absolute_url(href)
-            if "downloadButton" not in classes:
-                continue
-            if "/download/" in href or "Download APK" in text:
-                if requested_type != "BUNDLE" or "Bundle" in text or "/download/" in href:
-                    return absolute_url(href)
-        return None
-    
-    # Loop backwards: Try full version, then strip parts
-    for i in range(len(version_parts), 0, -1):
-        current_ver_str = "-".join(version_parts[:i])
-        
-        # If build number exists, append it to the last version part in URL
-        if build_number and i == len(version_parts):
-            if build_format == 'build_suffix':
-                # e.g., "6-6" + "build-006" -> "6-6-build-006"
-                current_ver_str = current_ver_str + "-build-" + build_number
-            else:
-                # e.g., "32-30-0" + "1575420" -> "32-30-01575420"
-                parts = version_parts[:i]
-                parts[-1] = parts[-1] + build_number
-                current_ver_str = "-".join(parts)
-        
-        # Generate ALL possible URL patterns in priority order
-        url_patterns = []
-        
-        # URL-encode the release_name to handle unicode characters like ․
-        encoded_release_name = quote(release_name, safe='')
-        encoded_name = quote(config['name'], safe='')
-        
-        # Priority 1: With release_name and -release suffix (most specific)
-        url_patterns.append(f"{base_url}/apk/{config['org']}/{encoded_name}/{encoded_release_name}-{current_ver_str}-release/")
-        
-        # Priority 2: With app name and -release suffix
-        if release_name != config['name']:
-            url_patterns.append(f"{base_url}/apk/{config['org']}/{encoded_name}/{encoded_name}-{current_ver_str}-release/")
-        
-        # Priority 3: With release_name without -release
-        url_patterns.append(f"{base_url}/apk/{config['org']}/{encoded_name}/{encoded_release_name}-{current_ver_str}/")
-        
-        # Priority 4: With app name without -release
-        if release_name != config['name']:
-            url_patterns.append(f"{base_url}/apk/{config['org']}/{encoded_name}/{encoded_name}-{current_ver_str}/")
-        
-        # Remove duplicate patterns
-        url_patterns = list(dict.fromkeys(url_patterns))
-        
-        for url in url_patterns:
-            logging.info(f"Checking potential release URL: {url}")
-            
-            try:
-                response = session.get(url)
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.content, "html.parser")
-                    page_text = soup.get_text()
-                    
-                    # VALIDATION: Check if this page is for our EXACT version
-                    # Check multiple possible version formats
-                    version_checks = [
-                        version,  # 6.6
-                        version.replace('.', '-'),  # 6-6
-                        current_ver_str,  # 6-6-build-002 (if stripped)
-                        ".".join(version_parts[:i])  # 6.6 (if stripped)
-                    ]
-                    
-                    # Add build suffix format if we have a build number
-                    if build_number:
-                        if build_format == 'build_suffix':
-                            version_checks.append(f"{version} build {build_number}")  # 6.6 build 002
-                            version_checks.append(f"{version.replace('.', '-')}-build-{build_number}")  # 6-6-build-002
-                        else:
-                            version_checks.append(f"{version}({build_number})")  # 32.30.0(1575420)
-                    
-                    # Also check page title and headings for version
-                    title_tag = soup.find('title')
-                    headings = soup.find_all(['h1', 'h2', 'h3'])
-                    
-                    is_correct_page = False
-                    
-                    # Check in page text
-                    for check in version_checks:
-                        if check and check in page_text:
-                            # Accept version match if it's the base version or includes build info
-                            if check == version or check == version.replace('.', '-') or check == current_ver_str:
-                                is_correct_page = True
-                                break
-                    
-                    # Check in title and headings
-                    if not is_correct_page:
-                        for heading in headings:
-                            heading_text = heading.get_text()
-                            for check in version_checks:
-                                if check and check in heading_text:
-                                    is_correct_page = True
-                                    break
-                            if is_correct_page:
-                                break
-                    
-                    if not is_correct_page and title_tag:
-                        title_text = title_tag.get_text()
-                        for check in version_checks:
-                            if check and check in title_text:
-                                is_correct_page = True
-                                break
-                    
-                    if is_correct_page:
-                        content_size = len(response.content)
-                        logging.info(f"✓ Correct version page found: {response.url}")
-                        found_soup = soup
-                        correct_version_page = True
-                        break  # Found correct page!
-                    else:
-                        # Page exists but doesn't have our version as primary
-                        logging.warning(f"Page found but not for version {version}: {url}")
-                        # Save as fallback ONLY if we haven't found any page yet
-                        if found_soup is None:
-                            found_soup = soup
-                            logging.warning(f"Saved as fallback page (may list multiple versions)")
-                        continue
-                        
-                elif response.status_code == 404:
-                    logging.info(f"URL not found (404): {url}")
-                    continue
-                else:
-                    logging.warning(f"URL {url} returned status {response.status_code}")
-                    continue
-                    
-            except Exception as e:
-                logging.warning(f"Error checking {url}: {str(e)[:50]}")
-                continue
-        
-        if correct_version_page:
-            break  # Found correct page for this version part
-    
-    # If we didn't find the exact version page but found a fallback
-    if not correct_version_page and found_soup:
-        logging.warning(f"Using fallback page for {app_name} {version} (may contain multiple versions)")
-    
-    if not found_soup:
-        logging.error(f"Could not find any release page for {app_name} {version}")
-        return None
-    
-    # --- VARIANT FINDER (works with both exact pages and fallback pages) ---
-    rows = found_soup.find_all('div', class_='table-row headerFont')
-    download_page_url = None
-    
-    # Try to find exact version match first
-    for row in rows:
-        row_text = row.get_text()
-        
-        # Check if row contains our exact version
-        if version in row_text or version.replace('.', '-') in row_text:
-            if row_matches(row_text):
-                sub_url = row.find('a', class_='accent_color')
-                if sub_url:
-                    download_page_url = base_url + sub_url['href']
-                    break
-    
-    # If exact version not found, try to find any variant matching criteria
-    if not download_page_url:
-        for row in rows:
-            row_text = row.get_text()
-            if row_matches(row_text):
-                # Check if this looks like a variant row (has version numbers)
-                if re.search(r'\d+(\.\d+)+', row_text):
-                    sub_url = row.find('a', class_='accent_color')
-                    if sub_url:
-                        download_page_url = base_url + sub_url['href']
-                        # Extract version for logging
-                        match = re.search(r'(\d+(\.\d+)+(\.\w+)*)', row_text)
-                        if match:
-                            actual_version = match.group(1)
-                            logging.warning(f"Using variant {actual_version} (criteria match)")
-                        break
-    
-    if not download_page_url:
-        logging.error(
-            f"No variant found for {app_name} {version} with criteria "
-            f"[type={requested_type!r}, arch={target_arch!r}, dpi={target_dpi!r}]"
+    version, build_number, build_format = _parse_build_from_version(
+        version
+    )
+    if not build_number:
+        build_number, build_format = get_build_number_for_version(
+            version, config
         )
-        # Debug: log what rows we found
-        logging.debug(f"Found {len(rows)} rows total")
-        for idx, row in enumerate(rows[:5]):  # First 5 rows
-            logging.debug(f"Row {idx}: {row.get_text()[:100]}...")
+        if build_number:
+            logging.info(
+                "Found build number %s for version %s (format: %s)",
+                build_number, version, build_format,
+            )
+
+    found_soup, exact = _search_release_pages(
+        version, config, build_number, build_format
+    )
+
+    if not exact and found_soup:
+        logging.warning(
+            "Using fallback page for %s %s "
+            "(may contain multiple versions)",
+            _app_name, version,
+        )
+    if not found_soup:
+        logging.error(
+            "Could not find any release page for %s %s",
+            _app_name, version,
+        )
         return None
-    
-    # --- STANDARD DOWNLOAD FLOW ---
+
+    download_page_url = _find_variant_url(
+        found_soup, version, target_arch, target_dpi,
+        requested_type, _app_name,
+    )
+    if not download_page_url:
+        return None
+
     try:
-        response = session.get(download_page_url)
-        response.raise_for_status()
-        content_size = len(response.content)
-        logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Variant Page")
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        direct_download_url = find_direct_download(soup)
-        if direct_download_url:
-            if "/download/?key=" in direct_download_url:
-                response = session.get(direct_download_url)
-                response.raise_for_status()
-                content_size = len(response.content)
-                logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Keyed Download Page")
-                soup = BeautifulSoup(response.content, "html.parser")
-                direct_download_url = find_direct_download(soup)
-            if direct_download_url:
-                return direct_download_url
-
-        final_download_page_url = find_release_link(soup)
-        if final_download_page_url:
-            response = session.get(final_download_page_url)
-            response.raise_for_status()
-            content_size = len(response.content)
-            logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Download Page")
-            soup = BeautifulSoup(response.content, "html.parser")
-
-            direct_download_url = find_direct_download(soup)
-            if direct_download_url and "/download/?key=" in direct_download_url:
-                response = session.get(direct_download_url)
-                response.raise_for_status()
-                content_size = len(response.content)
-                logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Keyed Download Page")
-                soup = BeautifulSoup(response.content, "html.parser")
-                direct_download_url = find_direct_download(soup)
-            if direct_download_url:
-                return direct_download_url
-    except Exception as e:
-        logging.error(f"Error in download flow: {e}")
-    
+        return _follow_download_chain(
+            download_page_url, version, requested_type
+        )
+    except RequestsError as exc:
+        logging.error("Error in download flow: %s", exc)
     return None
 
-def get_architecture_criteria(arch: str) -> dict:
-    """Map architecture names to APKMirror criteria"""
-    arch_mapping = {
-        "arm64-v8a": "arm64-v8a",
-        "armeabi-v7a": "armeabi-v7a", 
-        "universal": "universal"
-    }
-    return arch_mapping.get(arch, "universal")
-    
-def get_latest_version(app_name: str, config: dict) -> str:
+
+def get_latest_version(_app_name: str, config: dict) -> str | None:  # pylint: disable=too-many-statements
+    """Return the newest non-alpha/beta version string from APKMirror."""
     target_arch = config.get("arch", "")
     target_dpi = config.get("dpi", "")
 
     def extract_variant_versions(soup: BeautifulSoup) -> list[str]:
-        versions = []
-
+        versions: list[str] = []
         for row in soup.find_all("div", class_="table-row headerFont"):
             row_text = " ".join(row.get_text(" ", strip=True).split())
             lowered = row_text.lower()
-            if "latest:" not in lowered or "alpha" in lowered or "beta" in lowered:
+            if (
+                "latest:" not in lowered
+                or "alpha" in lowered
+                or "beta" in lowered
+            ):
                 continue
             if target_arch and target_arch not in row_text:
                 continue
             if target_dpi and target_dpi not in row_text:
                 continue
-
-            latest_part = row_text.split("Latest:", 1)[1].split(" on ", 1)[0].strip()
+            latest_part = (
+                row_text.split("Latest:", 1)[1]
+                .split(" on ", 1)[0]
+                .strip()
+            )
             if latest_part:
                 versions.append(latest_part)
-
         return versions
 
-    def extract_versions(soup: BeautifulSoup) -> list[str]:
-        versions = []
-        version_pattern = re.compile(r'\d+(\.\d+)*(-[a-zA-Z0-9]+(\.\d+)*)*')
+    def extract_versions(soup: BeautifulSoup) -> list[str]:  # pylint: disable=too-many-locals
+        versions: list[str] = []
+        version_pattern = re.compile(
+            r'\d+(\.\d+)*(-[a-zA-Z0-9]+(\.\d+)*)*'
+        )
         app_path_prefix = f"/apk/{config['org']}/{config['name']}/"
 
         for row in soup.find_all("div", class_="appRow"):
@@ -385,62 +522,71 @@ def get_latest_version(app_name: str, config: dict) -> str:
 
             version_text = link.get_text(strip=True) if link else ""
             lowered = version_text.lower()
-            if not version_text or "alpha" in lowered or "beta" in lowered:
+            if (
+                not version_text
+                or "alpha" in lowered
+                or "beta" in lowered
+            ):
                 continue
 
             match = version_pattern.search(version_text)
             if not match:
                 continue
 
-            version = match.group()
-            version_parts = version.split('.')
-            base_version_parts = []
-            for part in version_parts:
+            ver = match.group()
+            ver_parts = ver.split('.')
+            base_parts: list[str] = []
+            for part in ver_parts:
                 if part.isdigit():
-                    base_version_parts.append(part)
+                    base_parts.append(part)
                 else:
                     break
-            if not base_version_parts:
+            if not base_parts:
                 continue
 
-            parsed_version = ".".join(base_version_parts)
-
-            build_match = re.search(r'\((\d+)\)', version_text)
-            if build_match:
-                parsed_version = f"{parsed_version}({build_match.group(1)})"
+            parsed = ".".join(base_parts)
+            bm = re.search(r'\((\d+)\)', version_text)
+            if bm:
+                parsed = f"{parsed}({bm.group(1)})"
             else:
-                build_match = re.search(r'build\s+(\d+)', version_text, re.IGNORECASE)
-                if build_match:
-                    parsed_version = f"{parsed_version} build {build_match.group(1)}"
+                bm = re.search(
+                    r'build\s+(\d+)', version_text, re.IGNORECASE
+                )
+                if bm:
+                    parsed = f"{parsed} build {bm.group(1)}"
 
-            versions.append(parsed_version)
-
+            versions.append(parsed)
         return versions
 
-    main_url = f"{base_url}/apk/{config['org']}/{config['name']}/"
+    main_url = f"{BASE_URL}/apk/{config['org']}/{config['name']}/"
     try:
         response = session.get(main_url)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, "html.parser")
-        latest = utils.get_highest_version(extract_variant_versions(soup))
+        latest = utils.get_highest_version(
+            extract_variant_versions(soup)
+        )
         if latest:
             return latest
-
         latest = utils.get_highest_version(extract_versions(soup))
         if latest:
             return latest
-    except Exception as e:
-        logging.debug(f"Could not fetch latest version from main app page: {e}")
-    
-    url = f"{base_url}/uploads/?appcategory={config['name']}"
+    except (RequestsError, KeyError) as exc:
+        logging.debug(
+            "Could not fetch latest version from main app page: %s",
+            exc,
+        )
+
+    url = f"{BASE_URL}/uploads/?appcategory={config['name']}"
     response = session.get(url)
     response.raise_for_status()
-    content_size = len(response.content)
-    logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> \"-\" [1]")
+    csize = len(response.content)
+    logging.info(
+        "URL:%s [%d/%d] -> \"-\" [1]", response.url, csize, csize
+    )
     soup = BeautifulSoup(response.content, "html.parser")
 
     latest = utils.get_highest_version(extract_versions(soup))
     if latest:
         return latest
-
     return None
