@@ -1,3 +1,5 @@
+"""Uptodown download source: version lookup and APK download link resolution."""
+
 import logging
 
 from bs4 import BeautifulSoup
@@ -6,166 +8,182 @@ from src import session
 
 
 def get_latest_version(app_name: str, config: dict) -> str:
-    # Generate all possible Uptodown names
-    possible_names = generate_possible_uptodown_names(config)
-    
-    logging.info(f"Trying {len(possible_names)} possible Uptodown names for {app_name}")
-    
+    """Return the latest version string from Uptodown."""
+    possible_names = _generate_possible_names(config)
+    logging.info("Trying %d possible Uptodown names for %s", len(possible_names), app_name)
+
     for uptodown_name in possible_names:
         url = f"https://{uptodown_name}.en.uptodown.com/android/versions"
         try:
             response = session.get(url)
             if response.status_code == 200:
-                content_size = len(response.content)
-                logging.info(f"✓ Found: {response.url}")
+                logging.info("Found: %s", response.url)
                 soup = BeautifulSoup(response.content, "html.parser")
-                version_spans = soup.select('#versions-items-list .version')
+                version_spans = soup.select("#versions-items-list .version")
                 versions = [span.text for span in version_spans]
-                
                 if versions:
-                    highest_version = max(versions)
-                    logging.info(f"Found version {highest_version} for {app_name}")
-                    return highest_version
+                    highest = max(versions)
+                    logging.info("Found version %s for %s", highest, app_name)
+                    return highest
             elif response.status_code == 404:
-                logging.debug(f"✗ Not found: {url}")
-                continue
+                logging.debug("Not found: %s", url)
             else:
                 response.raise_for_status()
-        except Exception as e:
-            logging.debug(f"Failed for {url}: {str(e)[:50]}...")
-            continue
-    
-    raise Exception(f"Could not find Uptodown page for {app_name}")
+        except Exception:  # pylint: disable=broad-exception-caught
+            logging.debug("Failed for %s", url)
 
-def get_download_link(version: str, app_name: str, config: dict) -> str:
-    # Generate all possible Uptodown names
-    possible_names = generate_possible_uptodown_names(config)
-    
-    logging.info(f"Searching {len(possible_names)} possible Uptodown names for {app_name} v{version}")
-    
+    raise RuntimeError(f"Could not find Uptodown page for {app_name}")
+
+
+def get_download_link(version: str, app_name: str, config: dict) -> str | None:
+    """Resolve the direct download URL for *version* on Uptodown."""
+    possible_names = _generate_possible_names(config)
+    logging.info(
+        "Searching %d possible Uptodown names for %s v%s",
+        len(possible_names), app_name, version,
+    )
+
     for uptodown_name in possible_names:
-        base_url = f"https://{uptodown_name}.en.uptodown.com/android"
+        site_base = f"https://{uptodown_name}.en.uptodown.com/android"
         try:
-            response = session.get(f"{base_url}/versions")
+            response = session.get(f"{site_base}/versions")
             if response.status_code != 200:
                 continue
-                
-            soup = BeautifulSoup(response.content, "html.parser")
-            data_code = soup.find('h1', id='detail-app-name')['data-code']
 
-            page = 1
-            while True:
-                response = session.get(f"{base_url}/apps/{data_code}/versions/{page}")
-                response.raise_for_status()
-                version_data = response.json().get('data', [])
-                
-                if not version_data:
-                    break
-                    
-                for entry in version_data:
-                    if entry["version"] == version:
-                        version_url_parts = entry["versionURL"]
-                        version_url = f"{version_url_parts['url']}/{version_url_parts['extraURL']}/{version_url_parts['versionID']}"
-                        version_page = session.get(version_url)
-                        version_page.raise_for_status()
-                        soup = BeautifulSoup(version_page.content, "html.parser")
-                        
-                        button = soup.find('button', id='detail-download-button')
-                        if not button:
-                            continue
-                            
-                        onclick = button.get('onclick', '')
-                        if onclick and "download-link-deeplink" in onclick:
-                            version_url += '-x'
-                            version_page = session.get(version_url)
-                            version_page.raise_for_status()
-                            soup = BeautifulSoup(version_page.content, "html.parser")
-                            button = soup.find('button', id='detail-download-button')
-                        
-                        if button and 'data-url' in button.attrs:
-                            download_url = button['data-url']
-                            return f"https://dw.uptodown.com/dwn/{download_url}"
-                
-                if all(entry["version"] < version for entry in version_data):
-                    break
-                page += 1
-        except Exception as e:
-            logging.debug(f"Pattern {uptodown_name} failed: {str(e)[:50]}...")
-            continue
-    
-    logging.error(f"Version {version} not found for {app_name}")
+            soup = BeautifulSoup(response.content, "html.parser")
+            data_code = soup.find("h1", id="detail-app-name")["data-code"]
+            download_url = _search_version_pages(
+                site_base, data_code, version,
+            )
+            if download_url:
+                return download_url
+        except Exception:  # pylint: disable=broad-exception-caught
+            logging.debug("Pattern %s failed", uptodown_name)
+
+    logging.error("Version %s not found for %s", version, app_name)
     return None
 
-def generate_possible_uptodown_names(config: dict) -> list:
-    """Generate all possible Uptodown URL patterns from config data"""
-    app_name = config.get('name', '')
-    package = config.get('package', '')
-    
-    possible_names = set()
-    
-    # 1. Basic variations
-    possible_names.add(app_name)
-    possible_names.add(app_name.replace('-', ''))
-    possible_names.add(app_name.replace('-plus', 'plus'))
-    possible_names.add(app_name.replace('-', '_'))
-    
-    # 2. Package name variations
-    package_dash = package.replace('.', '-')
-    possible_names.add(package_dash)
-    
-    # Common TLD patterns (com-, org-, net-)
-    if package.startswith('com.'):
-        possible_names.add(package_dash)
-        possible_names.add(package_dash.replace('com-', ''))
-        
-        # com-package variations
-        parts = package.split('.')
+
+def _search_version_pages(
+    site_base: str, data_code: str, version: str,
+) -> str | None:
+    """Paginate through Uptodown version API pages looking for *version*."""
+    page = 1
+    while True:
+        response = session.get(f"{site_base}/apps/{data_code}/versions/{page}")
+        response.raise_for_status()
+        version_data = response.json().get("data", [])
+
+        if not version_data:
+            break
+
+        for entry in version_data:
+            if entry["version"] == version:
+                url = _resolve_entry_download(entry)
+                if url:
+                    return url
+
+        if all(entry["version"] < version for entry in version_data):
+            break
+        page += 1
+
+    return None
+
+
+def _resolve_entry_download(entry: dict) -> str | None:
+    """Follow the Uptodown version entry to its final download URL."""
+    parts = entry["versionURL"]
+    version_url = f"{parts['url']}/{parts['extraURL']}/{parts['versionID']}"
+    version_page = session.get(version_url)
+    version_page.raise_for_status()
+    soup = BeautifulSoup(version_page.content, "html.parser")
+
+    button = soup.find("button", id="detail-download-button")
+    if not button:
+        return None
+
+    onclick = button.get("onclick", "")
+    if onclick and "download-link-deeplink" in onclick:
+        version_url += "-x"
+        version_page = session.get(version_url)
+        version_page.raise_for_status()
+        soup = BeautifulSoup(version_page.content, "html.parser")
+        button = soup.find("button", id="detail-download-button")
+
+    if button and "data-url" in button.attrs:
+        return f"https://dw.uptodown.com/dwn/{button['data-url']}"
+    return None
+
+
+def _generate_possible_names(config: dict) -> list[str]:
+    """Generate all plausible Uptodown URL slug variants from *config*."""
+    app_name = config.get("name", "")
+    package = config.get("package", "")
+
+    names: set[str] = set()
+
+    # Basic variations
+    names.update([
+        app_name,
+        app_name.replace("-", ""),
+        app_name.replace("-plus", "plus"),
+        app_name.replace("-", "_"),
+    ])
+
+    # Package-based variations
+    package_dash = package.replace(".", "-")
+    names.add(package_dash)
+
+    if package.startswith("com."):
+        names.add(package_dash)
+        names.add(package_dash.replace("com-", ""))
+
+        parts = package.split(".")
         if len(parts) >= 2:
-            # com-appname
-            possible_names.add(f"com-{parts[1]}")
-            # com-appname-lastpart
-            possible_names.add(f"com-{parts[1]}-{parts[-1]}")
-            # appname only
-            possible_names.add(parts[1])
-            possible_names.add(parts[-1])
-            
-            # For multi-part packages like com.disney.disneyplus
+            names.update([
+                f"com-{parts[1]}",
+                f"com-{parts[1]}-{parts[-1]}",
+                parts[1],
+                parts[-1],
+            ])
             if len(parts) >= 3:
-                possible_names.add(f"com-{parts[1]}{parts[2]}")
-                possible_names.add(f"com-{parts[1]}{parts[2]}-mea")
-                possible_names.add(f"com-{'-'.join(parts[1:])}")
-    
-    # 3. Common suffixes (these cover 99% of cases)
-    suffixes = ['', '-android', '-mobile', '-mea', '-plus', '-pro', '-lite', '-hd', '-apk']
+                names.update([
+                    f"com-{parts[1]}{parts[2]}",
+                    f"com-{parts[1]}{parts[2]}-mea",
+                    f"com-{'-'.join(parts[1:])}",
+                ])
+
+    # Suffix combinations
+    suffixes = [
+        "", "-android", "-mobile", "-mea", "-plus",
+        "-pro", "-lite", "-hd", "-apk",
+    ]
     for suffix in suffixes:
-        possible_names.add(app_name + suffix)
-        possible_names.add(package_dash + suffix)
-    
-    # 4. Company/app combinations
-    # Extract company name from package (first meaningful part after TLD)
-    parts = package.split('.')
+        names.add(app_name + suffix)
+        names.add(package_dash + suffix)
+
+    # Company / app combinations
+    parts = package.split(".")
     if len(parts) >= 2:
         company = parts[1]
         app_basename = parts[-1]
-        possible_names.add(f"{company}-{app_basename}")
-        possible_names.add(f"{company}-{app_name}")
-        
-        # For apps like Adobe
-        if 'adobe' in package.lower():
-            possible_names.add(f"adobe-{app_basename}")
-            possible_names.add(f"adobe-{app_basename}-mobile")
-    
-    # 5. Remove common words and try variations
-    clean_name = app_name
-    for word in ['plus', 'pro', 'lite', 'free', 'paid', 'mod']:
-        if word in clean_name:
-            clean = clean_name.replace(f'-{word}', '').replace(word, '')
-            possible_names.add(clean)
-            possible_names.add(f"{clean}-{word}")
-    
-    # 6. All lowercase
-    lowercase_names = {name.lower() for name in possible_names}
-    possible_names.update(lowercase_names)
-    
-    # Clean up: remove None/empty, deduplicate
-    return [name for name in possible_names if name and len(name) > 1]
+        names.update([
+            f"{company}-{app_basename}",
+            f"{company}-{app_name}",
+        ])
+        if "adobe" in package.lower():
+            names.update([
+                f"adobe-{app_basename}",
+                f"adobe-{app_basename}-mobile",
+            ])
+
+    # Keyword stripping
+    for word in ("plus", "pro", "lite", "free", "paid", "mod"):
+        if word in app_name:
+            clean = app_name.replace(f"-{word}", "").replace(word, "")
+            names.update([clean, f"{clean}-{word}"])
+
+    # Ensure all lowercase
+    names.update({n.lower() for n in names})
+
+    return [n for n in names if n and len(n) > 1]
