@@ -30,10 +30,12 @@ jobs:
             core.setOutput("matrix", JSON.stringify(matrix));
 
   build-apps:
-    name: Build Applications
+    name: Build and Release Applications
     needs: patch-apps
     runs-on: ubuntu-latest
     continue-on-error: true
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -53,7 +55,50 @@ jobs:
           pip install -r requirements.txt
           pip install requests beautifulsoup4
 
+      - name: Resolve Target Version
+        id: resolve-version
+        env:
+          APP_NAME: ${{ matrix.app_name }}
+          SOURCE: ${{ matrix.source }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          from src.__main__ import resolve_build_inputs, resolve_download_target
+          
+          app_name = os.environ["APP_NAME"]
+          source = os.environ["SOURCE"]
+          _, _, cli, patches, _ = resolve_build_inputs(source)
+          if not cli or not patches:
+              raise SystemExit("Failed to resolve CLI or patches")
+          
+          _, version = resolve_download_target(app_name, str(cli), str(patches))
+          if not version:
+              raise SystemExit("Failed to resolve target version")
+          
+          tag = f"{app_name}-v{version}"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"version={version}\n")
+              fh.write(f"release_tag={tag}\n")
+          print(f"Resolved {app_name} -> {version} ({tag})")
+          PY
+
+      - name: Check Existing Release
+        id: check-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.resolve-version.outputs.release_tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "skip_build=true" >> "$GITHUB_OUTPUT"
+            echo "Release already exists for $RELEASE_TAG, skipping build"
+          else
+            echo "skip_build=false" >> "$GITHUB_OUTPUT"
+            echo "No release found for $RELEASE_TAG, proceeding with build"
+          fi
+
       - name: Build APK
+        if: steps.check-release.outputs.skip_build != 'true'
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
@@ -65,145 +110,59 @@ jobs:
           python -m src
       
       - name: Upload APK Artifact
+        if: steps.check-release.outputs.skip_build != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: apk-${{ matrix.app_name }}-${{ matrix.source }}
           path: "*.apk"
-
-  create-single-release:
-    name: Create Single Release
-    needs: build-apps
-    runs-on: ubuntu-latest
-    if: always() 
-    permissions:
-      contents: write
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      
-      - name: Download All APK Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./all-apks
-          if-no-files-found: warn
-
-      - name: Check if Any APKs Were Built
-        id: check-apks
-        run: |
-          # Count APK files
-          apk_count=$(find ./all-apks -name "*.apk" 2>/dev/null | wc -l)
-          echo "Found $apk_count APK(s)"
-          
-          if [ $apk_count -eq 0 ]; then
-            echo "❌ No APKs were built successfully"
-            exit 1
-          fi
-          echo "✅ $apk_count APK(s) ready for release"
-      
-      - name: Collect All APKs
-        run: |
-          mkdir -p ./release-apks
-          
-          # Copy all APKs to release folder
-          echo "📦 Collecting APKs..."
-          find ./all-apks -name "*.apk" -exec cp {} ./release-apks/ \;
-          
-          echo "📁 APKs ready for release:"
-          ls -la ./release-apks/
-          
-          # Count again for display
-          final_count=$(ls -1 ./release-apks/*.apk 2>/dev/null | wc -l || echo "0")
-          echo "📊 Total APKs: $final_count"
       
       - name: Generate Release Notes
+        if: steps.check-release.outputs.skip_build != 'true'
+        env:
+          APP_NAME: ${{ matrix.app_name }}
+          SOURCE: ${{ matrix.source }}
+          VERSION: ${{ steps.resolve-version.outputs.version }}
         run: |
-          echo "📝 Generating release notes..."
-          
-          cat > release_notes.md << 'EOF'
-          ## 📱 Apps
+          app_title=$(echo "${APP_NAME}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
+          {
+            echo "# ${app_title}"
+            echo
+            echo "- **Version:** \`${VERSION}\`"
+            echo "- **Source:** \`${SOURCE}\`"
+            echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            echo
+            echo "## Assets"
+            echo
+            for apk in *.apk; do
+              [ -f "$apk" ] || continue
+              echo "- \`$(basename "$apk")\`"
+            done
+            echo
+            echo "## Notes"
+            echo
+            echo "- This release contains only **${APP_NAME}** artifacts."
+            echo "- If release \`${APP_NAME}-v${VERSION}\` already exists, the workflow skips rebuilding and republishing this app."
+          } > release_notes.md
 
-          | Name | Architecture | Version |
-          | --- | --- | --- |
-          EOF
-
-          # Collect table rows, then sort for stable release notes ordering.
-          tmp_rows=$(mktemp)
-
-          for apk in ./release-apks/*.apk; do
-            if [ -f "$apk" ]; then
-              filename=$(basename "$apk")
-              
-              # Extract app name (remove architecture and version info)
-              app_name=$(echo "$filename" | sed -E 's/-(arm64-v8a|armeabi-v7a|universal|patch|cli)-.*//' | sed 's/-/ /g')
-              
-              # Extract architecture
-              if [[ "$filename" == *"arm64-v8a"* ]]; then
-                arch="arm64-v8a"
-              elif [[ "$filename" == *"armeabi-v7a"* ]]; then
-                arch="armeabi-v7a"
-              else
-                arch="universal"
-              fi
-              
-              # Extract version
-              version=$(echo "$filename" | grep -oE 'v[0-9]+\.[0-9]+(\.[0-9]+)*' | head -1)
-              if [ -z "$version" ]; then
-                version="unknown"
-              fi
-
-              # Escape pipes to keep markdown table formatting intact.
-              app_name=${app_name//|/\\|}
-              arch=${arch//|/\\|}
-              version=${version//|/\\|}
-
-              printf '| %s | %s | %s |\n' "$app_name" "$arch" "$version" >> "$tmp_rows"
-            fi
-          done
-
-          sort -f "$tmp_rows" >> release_notes.md
-          rm -f "$tmp_rows"
-
-      - name: Create New Release
-        id: create-release
+      - name: Create App Release
+        if: steps.check-release.outputs.skip_build != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APP_NAME: ${{ matrix.app_name }}
+          VERSION: ${{ steps.resolve-version.outputs.version }}
+          RELEASE_TAG: ${{ steps.resolve-version.outputs.release_tag }}
         run: |
-          echo "🚀 Creating new release with APKs..."
-          
-          # Count APKs
-          apk_count=$(ls -1 ./release-apks/*.apk 2>/dev/null | wc -l || echo "0")
-          
-          if [ $apk_count -eq 0 ]; then
-            echo "❌ No APKs found to release"
-            exit 1
-          fi
-          
-          echo "📦 Releasing $apk_count APK(s)..."
-          
-          # Generate a unique date-based tag
-          RELEASE_TAG="$(date +'%Y-%m-%d-%H%M')"
-          echo "release-tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
-          
-          # Create the release
+          app_title=$(echo "${APP_NAME}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
           gh release create "$RELEASE_TAG" \
-            --title "Modded APKs - $(date +'%Y-%m-%d %H:%M')" \
+            --title "${app_title} v${VERSION}" \
             --notes-file release_notes.md \
-            ./release-apks/*.apk \
-            --latest
-          
-          echo "✅ Release created successfully!"
-      
-      - name: Display Release URL
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.create-release.outputs.release-tag }}
-        run: |
+            ./*.apk
+
           release_url=$(gh release view "$RELEASE_TAG" --json url --jq .url)
           echo "🔗 Release URL: $release_url"
           echo ""
           echo "📦 Direct Download Links:"
-          for apk in ./release-apks/*.apk; do
+          for apk in ./*.apk; do
             filename=$(basename "$apk")
             echo "- $filename: $release_url/download/$filename"
           done

@@ -12,65 +12,82 @@ from src import (
     downloader
 )
 
-def run_build(app_name: str, source: str, arch: str = "universal") -> str:
-    """Build APK for specific architecture"""
-    download_files, name = downloader.download_required(source)
-
-    # Log downloaded files for debugging
-    logging.info(f"📦 Downloaded {len(download_files)} files for {source}:")
-    for file in download_files:
-        logging.info(f"  - {file.name} ({file.stat().st_size} bytes)")
-
-    # DETECT SOURCE TYPE BASED ON DOWNLOADED FILES
+def detect_source_type(download_files: list[Path], source: str) -> tuple[bool, bool]:
     is_morphe = False
     is_revanced = False
 
-    # Check file contents to determine source type
     for file in download_files:
         if "morphe-cli" in file.name.lower():
             is_morphe = True
             break
-        elif "revanced-cli" in file.name.lower():
+        if "revanced-cli" in file.name.lower():
             is_revanced = True
             break
 
-    # If not detected by CLI name, check patch file extension
     if not is_morphe and not is_revanced:
         for file in download_files:
             if file.suffix == ".mpp":
                 is_morphe = True
                 break
-            elif file.suffix in [".rvp", ".jar"] and "patches" in file.name.lower():
+            if file.suffix in [".rvp", ".jar"] and "patches" in file.name.lower():
                 is_revanced = True
                 break
 
-    # If still not detected, fallback to source name
     if not is_morphe and not is_revanced:
         is_morphe = "morphe" in source.lower() or "custom" in source.lower()
-        is_revanced = not is_morphe  # Default to ReVanced if not Morphe
+        is_revanced = not is_morphe
 
-    logging.info(f"🔍 Detected: {'Morphe' if is_morphe else 'ReVanced'} source type")
+    return is_morphe, is_revanced
 
-    # FIND FILES BASED ON DETECTED TYPE
+def resolve_cli_and_patches(download_files: list[Path], source: str) -> tuple[Path | None, Path | None, bool]:
+    is_morphe, _ = detect_source_type(download_files, source)
+
     if is_morphe:
-        # Find Morphe files - prefer non-dev version
         cli = utils.find_file(download_files, contains="morphe-cli", suffix=".jar", exclude=["dev"])
         if not cli:
-            # Fallback to any Morphe CLI
             cli = utils.find_file(download_files, contains="morphe", suffix=".jar")
-        
+
         patches = utils.find_file(download_files, contains="patches", suffix=".mpp")
         if not patches:
-            # Fallback to any .mpp file
             patches = utils.find_file(download_files, suffix=".mpp")
     else:
-        # Find ReVanced files
         cli = utils.find_file(download_files, contains="revanced-cli", suffix=".jar")
         patches = utils.find_file(download_files, contains="patches", suffix=".rvp")
-        
         if not patches:
-            # Try .jar extension for patches
             patches = utils.find_file(download_files, contains="patches", suffix=".jar")
+
+    return cli, patches, is_morphe
+
+def resolve_build_inputs(source: str) -> tuple[list[Path], str, Path | None, Path | None, bool]:
+    download_files, name = downloader.download_required(source)
+
+    logging.info(f"📦 Downloaded {len(download_files)} files for {source}:")
+    for file in download_files:
+        logging.info(f"  - {file.name} ({file.stat().st_size} bytes)")
+
+    cli, patches, is_morphe = resolve_cli_and_patches(download_files, source)
+    logging.info(f"🔍 Detected: {'Morphe' if is_morphe else 'ReVanced'} source type")
+
+    return download_files, name, cli, patches, is_morphe
+
+def resolve_download_target(app_name: str, cli: str, patches: str, arch: str = None) -> tuple[str | None, str | None]:
+    resolve_methods = [
+        downloader.resolve_apkmirror,
+        downloader.resolve_apkpure,
+        downloader.resolve_uptodown,
+        downloader.resolve_aptoide
+    ]
+
+    for method in resolve_methods:
+        download_link, version = method(app_name, cli, patches, arch)
+        if download_link:
+            return download_link, version
+
+    return None, None
+
+def run_build(app_name: str, source: str, arch: str = "universal") -> str:
+    """Build APK for specific architecture"""
+    download_files, name, cli, patches, is_morphe = resolve_build_inputs(source)
 
     # Validate tools
     if not cli:
@@ -85,19 +102,11 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
     logging.info(f"✅ Using CLI: {cli.name}")
     logging.info(f"✅ Using patches: {patches.name}")
 
-    download_methods = [
-        downloader.download_apkmirror,
-        downloader.download_apkpure,
-        downloader.download_uptodown,
-        downloader.download_aptoide
-    ]
-
     input_apk = None
     version = None
-    for method in download_methods:
-        input_apk, version = method(app_name, str(cli), str(patches))
-        if input_apk:
-            break
+    download_link, version = resolve_download_target(app_name, str(cli), str(patches))
+    if download_link:
+        input_apk = downloader.download_resource(download_link)
             
     if input_apk is None:
         logging.error(f"❌ Failed to download APK for {app_name}")
@@ -273,6 +282,7 @@ def run_build(app_name: str, source: str, arch: str = "universal") -> str:
 def main():
     app_name = getenv("APP_NAME")
     source = getenv("SOURCE")
+    arch_override = getenv("ARCH")
 
     if not app_name or not source:
         logging.error("APP_NAME and SOURCE environment variables must be set")
@@ -285,11 +295,12 @@ def main():
             arch_config = json.load(f)
         
         # Find arches for this app
-        arches = ["universal"]  # default
-        for config in arch_config:
-            if config["app_name"] == app_name and config["source"] == source:
-                arches = config["arches"]
-                break
+        arches = [arch_override] if arch_override else ["universal"]
+        if not arch_override:
+            for config in arch_config:
+                if config["app_name"] == app_name and config["source"] == source:
+                    arches = config["arches"]
+                    break
         
         # Build for each architecture
         built_apks = []
@@ -307,8 +318,9 @@ def main():
         
     else:
         # Fallback to single universal build
-        logging.warning("arch-config.json not found, building universal only")
-        apk_path = run_build(app_name, source, "universal")
+        fallback_arch = arch_override or "universal"
+        logging.warning(f"arch-config.json not found, building {fallback_arch} only")
+        apk_path = run_build(app_name, source, fallback_arch)
         if apk_path:
             print(f"🎯 Final APK path: {apk_path}")
 

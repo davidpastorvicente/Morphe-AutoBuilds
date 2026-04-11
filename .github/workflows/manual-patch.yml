@@ -117,93 +117,100 @@ jobs:
           name: manual-apk-${{ inputs.app_name }}-${{ inputs.architecture }}
           path: "*.apk"
       
+      - name: Resolve Release Metadata
+        id: release-meta
+        run: |
+          first_apk=$(ls -1 *.apk | head -1)
+          if [ -z "$first_apk" ]; then
+            echo "❌ No APK files found"
+            exit 1
+          fi
+
+          version=$(echo "$first_apk" | sed -E 's/.*-v([^.]*(\.[^.]*)*)\.apk/\1/')
+          if [ -z "$version" ] || [ "$version" = "$first_apk" ]; then
+            echo "❌ Could not determine version from $first_apk"
+            exit 1
+          fi
+
+          release_tag="${{ inputs.app_name }}-v${version}"
+          app_title=$(echo "${{ inputs.app_name }}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
+
+          {
+            echo "version=$version"
+            echo "release_tag=$release_tag"
+            echo "release_title=${app_title} v${version}"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Check Existing Release
-        if: ${{ inputs.replace_in_release == true }}
         id: check-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
         run: |
-          if gh release view latest >/dev/null 2>&1; then
-            echo "✅ Release 'latest' exists"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "✅ Release '$RELEASE_TAG' exists"
             echo "release_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Release 'latest' does not exist"
+            echo "❌ Release '$RELEASE_TAG' does not exist"
             echo "release_exists=false" >> $GITHUB_OUTPUT
           fi
       
-      - name: Update Release
-        if: ${{ inputs.replace_in_release == true }}
+      - name: Stop if Release Exists and Replace is Disabled
+        if: ${{ steps.check-release.outputs.release_exists == 'true' && inputs.replace_in_release != true }}
+        run: |
+          echo "❌ Release already exists and replace_in_release is false"
+          exit 1
+
+      - name: Create or Update Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
+          RELEASE_TITLE: ${{ steps.release-meta.outputs.release_title }}
+          VERSION: ${{ steps.release-meta.outputs.version }}
         run: |
-          echo "🔄 Updating release efficiently..."
-          
-          # 1. GENERATE FILE LIST FOR NOTES
-          # We fetch the list of names via API so the release notes remain accurate
-          # without needing to download the actual heavy APK files.
-          if [ "${{ steps.check-release.outputs.release_exists }}" == "true" ]; then
-            gh release view latest --json assets --jq '.assets[].name' > current_assets.txt
-          else
-            touch current_assets.txt
-          fi
-          
-          # Add the new APK name(s) to the text file
-          for apk in *.apk; do
-            echo "$apk" >> current_assets.txt
-          done
-          
-          # 2. CREATE RELEASE NOTES
-          cat > release_notes.md << EOF
-          # ReVanced APKs
-          
-          ## 📱 Available Apps
-          EOF
-          
-          # Sort and use 'unique' to remove duplicates in the text list
-          sort -u current_assets.txt | while read filename; do
-            echo "- $filename" >> release_notes.md
-          done
-          
-          cat >> release_notes.md << EOF
-          
-          ---
-          
-          **Last Update:** $(date)
-          **Updated App:** ${{ inputs.app_name }}
-          **Architecture:** ${{ inputs.architecture }}
-          **Source:** ${{ inputs.source }}
-          
-          Auto-updates daily at 6 AM UTC.
-          EOF
-          
-          # 3. PERFORM UPDATE (CLOBBER) OR CREATE
+          {
+            echo "# ${RELEASE_TITLE% v${VERSION}}"
+            echo
+            echo "- **Version:** \`${VERSION}\`"
+            echo "- **Source:** \`${{ inputs.source }}\`"
+            echo "- **Requested architecture:** \`${{ inputs.architecture }}\`"
+            echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            echo
+            echo "## Assets"
+            echo
+            for apk in *.apk; do
+              [ -f "$apk" ] || continue
+              echo "- \`$apk\`"
+            done
+            echo
+            echo "## Notes"
+            echo
+            echo "- This release contains only **${{ inputs.app_name }}** artifacts."
+            echo "- Manual rebuilds can replace assets in the same app/version release when \`replace_in_release\` is enabled."
+          } > release_notes.md
+
           if [ "${{ steps.check-release.outputs.release_exists }}" == "true" ]; then
             echo "⬆️ Uploading new assets (clobbering existing)..."
-            # --clobber overwrites the file if it exists, adds it if it doesn't
-            gh release upload latest *.apk --clobber
-            
-            echo "📝 Updating release title and notes..."
-            gh release edit latest \
-              --title "ReVanced APKs - $(date +'%Y-%m-%d %H:%M')" \
+            gh release upload "$RELEASE_TAG" *.apk --clobber
+            gh release edit "$RELEASE_TAG" \
+              --title "$RELEASE_TITLE" \
               --notes-file release_notes.md
-              
           else
             echo "🚀 Creating new release..."
-            gh release create "latest" \
-              --title "ReVanced APKs - $(date +'%Y-%m-%d %H:%M')" \
+            gh release create "$RELEASE_TAG" \
+              --title "$RELEASE_TITLE" \
               --notes-file release_notes.md \
-              *.apk \
-              --latest
+              *.apk
           fi
           
           echo "✅ Release updated successfully!"
       
       - name: Show Download Links
-        if: ${{ inputs.replace_in_release == true }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
         run: |
-          release_url=$(gh release view latest --json url --jq .url)
+          release_url=$(gh release view "$RELEASE_TAG" --json url --jq .url)
           echo "🔗 Updated Release URL: $release_url"
           echo ""
           echo "📦 Direct APK links:"
