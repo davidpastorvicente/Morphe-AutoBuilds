@@ -175,7 +175,7 @@ jobs:
             echo "- **App:** \`${{ inputs.app_name }}\`"
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${{ inputs.source }}\`"
-            echo "- **Requested architecture:** \`${{ inputs.architecture }}\`"
+            echo "- **Architecture:** \`${{ inputs.architecture }}\`"
             echo "- **Patches version:** \`${PATCHES_VERSION}\`"
             echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"

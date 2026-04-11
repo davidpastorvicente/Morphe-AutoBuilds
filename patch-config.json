@@ -1,9 +1,9 @@
 {
   "patch_list": [
-    {"app_name": "google-photos", "source": "rookie"},
-    {"app_name": "instagram", "source": "piko"},
-    {"app_name": "x", "source": "piko"},
-    {"app_name": "youtube", "source": "morphe"},
-    {"app_name": "youtube-music", "source": "morphe"}
+    {"app_name": "google-photos", "source": "rookie", "arch": "arm64-v8a"},
+    {"app_name": "instagram", "source": "piko", "arch": "arm64-v8a"},
+    {"app_name": "x", "source": "piko", "arch": "universal"},
+    {"app_name": "youtube", "source": "morphe", "arch": "universal"},
+    {"app_name": "youtube-music", "source": "morphe", "arch": "arm64-v8a"}
   ]
 }

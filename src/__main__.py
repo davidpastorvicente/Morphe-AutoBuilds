@@ -1,6 +1,5 @@
 """Entry-point for building patched APKs."""
 
-import json
 import logging
 import re
 import subprocess
@@ -363,10 +362,10 @@ def run_build(
 
 
 def main():
-    """CLI entry-point: read env vars and build for each arch."""
+    """CLI entry-point: read env vars and build."""
     app_name = getenv("APP_NAME")
     source = getenv("SOURCE")
-    arch_override = getenv("ARCH")
+    arch = getenv("ARCH") or "universal"
 
     if not app_name or not source:
         logging.error(
@@ -374,48 +373,10 @@ def main():
         )
         sys.exit(1)
 
-    arch_config_path = Path("arch-config.json")
-    if arch_config_path.exists():
-        with open(
-            arch_config_path, encoding="utf-8"
-        ) as f:
-            arch_config = json.load(f)
-
-        arches = [arch_override] if arch_override else ["universal"]
-        if not arch_override:
-            for config in arch_config:
-                if (
-                    config["app_name"] == app_name
-                    and config["source"] == source
-                ):
-                    arches = config["arches"]
-                    break
-
-        built_apks: list[str] = []
-        for arch in arches:
-            logging.info(
-                "🔨 Building %s for %s architecture...",
-                app_name, arch,
-            )
-            apk_path = run_build(app_name, source, arch)
-            if apk_path:
-                built_apks.append(apk_path)
-                print(
-                    f"✅ Built {arch} version: {Path(apk_path).name}"
-                )
-
-        print(f"\n🎯 Built {len(built_apks)} APK(s) for {app_name}:")
-        for apk in built_apks:
-            print(f"  📱 {Path(apk).name}")
-    else:
-        fallback_arch = arch_override or "universal"
-        logging.warning(
-            "arch-config.json not found, building %s only",
-            fallback_arch,
-        )
-        apk_path = run_build(app_name, source, fallback_arch)
-        if apk_path:
-            print(f"🎯 Final APK path: {apk_path}")
+    logging.info("🔨 Building %s for %s architecture...", app_name, arch)
+    apk_path = run_build(app_name, source, arch)
+    if apk_path:
+        print(f"🎯 Final APK: {Path(apk_path).name}")
 
 
 if __name__ == "__main__":
