@@ -77,6 +77,39 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install requests beautifulsoup4
+
+      - name: Resolve Build Metadata
+        id: build-meta
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          SOURCE: ${{ inputs.source }}
+          ARCH: ${{ inputs.architecture }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          from src import release
+          from src.__main__ import resolve_build_inputs, resolve_download_target
+
+          app_name = os.environ["APP_NAME"]
+          source = os.environ["SOURCE"]
+          arch = os.environ["ARCH"]
+          _, _, cli, patches, _ = resolve_build_inputs(source)
+          if not cli or not patches:
+              raise SystemExit("Failed to resolve CLI or patches")
+
+          _, version = resolve_download_target(app_name, str(cli), str(patches), arch)
+          if not version:
+              raise SystemExit("Failed to resolve target version")
+
+          app_title = app_name.replace("-", " ").title()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"version={version}\n")
+              fh.write(f"release_tag={app_name}-v{version}\n")
+              fh.write(f"release_title={app_title} v{version}\n")
+              fh.write(f"cli_version={release.extract_version(cli.name)}\n")
+              fh.write(f"patches_version={release.extract_version(patches.name)}\n")
+          PY
       
       - name: Build APK
         env:
@@ -117,35 +150,11 @@ jobs:
           name: manual-apk-${{ inputs.app_name }}-${{ inputs.architecture }}
           path: "*.apk"
       
-      - name: Resolve Release Metadata
-        id: release-meta
-        run: |
-          first_apk=$(ls -1 *.apk | head -1)
-          if [ -z "$first_apk" ]; then
-            echo "❌ No APK files found"
-            exit 1
-          fi
-
-          version=$(echo "$first_apk" | sed -E 's/.*-v([^.]*(\.[^.]*)*)\.apk/\1/')
-          if [ -z "$version" ] || [ "$version" = "$first_apk" ]; then
-            echo "❌ Could not determine version from $first_apk"
-            exit 1
-          fi
-
-          release_tag="${{ inputs.app_name }}-v${version}"
-          app_title=$(echo "${{ inputs.app_name }}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
-
-          {
-            echo "version=$version"
-            echo "release_tag=$release_tag"
-            echo "release_title=${app_title} v${version}"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Check Existing Release
         id: check-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
+          RELEASE_TAG: ${{ steps.build-meta.outputs.release_tag }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             echo "✅ Release '$RELEASE_TAG' exists"
@@ -164,9 +173,11 @@ jobs:
       - name: Create or Update Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
-          RELEASE_TITLE: ${{ steps.release-meta.outputs.release_title }}
-          VERSION: ${{ steps.release-meta.outputs.version }}
+          RELEASE_TAG: ${{ steps.build-meta.outputs.release_tag }}
+          RELEASE_TITLE: ${{ steps.build-meta.outputs.release_title }}
+          VERSION: ${{ steps.build-meta.outputs.version }}
+          CLI_VERSION: ${{ steps.build-meta.outputs.cli_version }}
+          PATCHES_VERSION: ${{ steps.build-meta.outputs.patches_version }}
         run: |
           {
             echo "# ${RELEASE_TITLE% v${VERSION}}"
@@ -174,6 +185,8 @@ jobs:
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${{ inputs.source }}\`"
             echo "- **Requested architecture:** \`${{ inputs.architecture }}\`"
+            echo "- **Patches version:** \`${PATCHES_VERSION}\`"
+            echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             echo
             echo "## Assets"
@@ -208,7 +221,7 @@ jobs:
       - name: Show Download Links
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.release-meta.outputs.release_tag }}
+          RELEASE_TAG: ${{ steps.build-meta.outputs.release_tag }}
         run: |
           release_url=$(gh release view "$RELEASE_TAG" --json url --jq .url)
           echo "🔗 Updated Release URL: $release_url"

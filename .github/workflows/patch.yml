@@ -64,6 +64,7 @@ jobs:
         run: |
           python - <<'PY'
           import os
+          from src import release
           from src.__main__ import resolve_build_inputs, resolve_download_target
           
           app_name = os.environ["APP_NAME"]
@@ -77,9 +78,13 @@ jobs:
               raise SystemExit("Failed to resolve target version")
           
           tag = f"{app_name}-v{version}"
+          cli_version = release.extract_version(cli.name)
+          patches_version = release.extract_version(patches.name)
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write(f"version={version}\n")
               fh.write(f"release_tag={tag}\n")
+              fh.write(f"cli_version={cli_version}\n")
+              fh.write(f"patches_version={patches_version}\n")
           print(f"Resolved {app_name} -> {version} ({tag})")
           PY
 
@@ -122,6 +127,8 @@ jobs:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
           VERSION: ${{ steps.resolve-version.outputs.version }}
+          CLI_VERSION: ${{ steps.resolve-version.outputs.cli_version }}
+          PATCHES_VERSION: ${{ steps.resolve-version.outputs.patches_version }}
         run: |
           app_title=$(echo "${APP_NAME}" | sed 's/-/ /g' | sed -E 's/\b(.)/\U\1/g')
           {
@@ -129,6 +136,8 @@ jobs:
             echo
             echo "- **Version:** \`${VERSION}\`"
             echo "- **Source:** \`${SOURCE}\`"
+            echo "- **Patches version:** \`${PATCHES_VERSION}\`"
+            echo "- **CLI version:** \`${CLI_VERSION}\`"
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             echo
             echo "## Assets"
@@ -166,17 +175,3 @@ jobs:
             filename=$(basename "$apk")
             echo "- $filename: $release_url/download/$filename"
           done
-
-  cleanup:
-    name: Cleanup Workflow Runs
-    needs: build-apps
-    runs-on: ubuntu-latest
-    if: always()
-    permissions:
-      actions: write
-    steps:
-      - name: Delete Old Workflow Runs
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          retain_days: 3
-          keep_minimum_runs: 5
