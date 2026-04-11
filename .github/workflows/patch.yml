@@ -60,6 +60,7 @@ jobs:
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
+          ARCH: ${{ join(matrix.arch, ',') }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python - <<'PY'
@@ -69,11 +70,12 @@ jobs:
           
           app_name = os.environ["APP_NAME"]
           source = os.environ["SOURCE"]
+          arch = os.environ.get("ARCH", "universal").split(",")[0].strip()
           _, _, cli, patches, _ = resolve_build_inputs(source)
           if not cli or not patches:
               raise SystemExit("Failed to resolve CLI or patches")
           
-          _, version = resolve_download_target(app_name, str(cli), str(patches))
+          _, version = resolve_download_target(app_name, str(cli), str(patches), arch)
           if not version:
               raise SystemExit("Failed to resolve target version")
           
