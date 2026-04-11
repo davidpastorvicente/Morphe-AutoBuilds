@@ -1,5 +1,6 @@
 import base64
 from typing import Dict
+
 from src import session
 
 BASE_URL = "https://ws75.aptoide.com/api/7/"

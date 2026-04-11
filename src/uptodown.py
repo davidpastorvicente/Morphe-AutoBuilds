@@ -1,6 +1,9 @@
-import logging 
-from src import session 
+import logging
+
 from bs4 import BeautifulSoup
+
+from src import session
+
 
 def get_latest_version(app_name: str, config: dict) -> str:
     # Generate all possible Uptodown names

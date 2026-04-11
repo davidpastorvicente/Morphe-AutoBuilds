@@ -1,8 +1,8 @@
-import json
-import logging 
+import logging
 
-from src import session 
 from bs4 import BeautifulSoup
+
+from src import session
 
 # Define a standard browser User-Agent to avoid 403 Forbidden errors
 HEADERS = {

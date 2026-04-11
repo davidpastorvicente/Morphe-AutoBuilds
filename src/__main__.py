@@ -1,16 +1,13 @@
 import json
 import logging
 import re
-from sys import exit
-from pathlib import Path
-from os import getenv
 import subprocess
-from src import (
-    r2,
-    utils,
-    release,
-    downloader
-)
+from os import getenv
+from pathlib import Path
+from sys import exit
+
+from src import downloader, utils
+
 
 def detect_source_type(download_files: list[Path], source: str) -> tuple[bool, bool]:
     is_morphe = False

@@ -1,8 +1,9 @@
 import re
-import json
-from sys import exit
 from pathlib import Path
+from sys import exit
+
 from src import repository, gh
+
 
 def convert_title(text):
     if not text or not isinstance(text, str):

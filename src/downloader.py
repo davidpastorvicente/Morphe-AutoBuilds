@@ -1,14 +1,9 @@
 import json
 import logging
 from pathlib import Path
-from src import (
-    utils,
-    apkpure,
-    session,
-    uptodown,
-    aptoide,
-    apkmirror
-)
+
+from src import session, utils
+
 
 def download_resource(url: str, name: str = None) -> Path:
     res = session.get(url, stream=True)

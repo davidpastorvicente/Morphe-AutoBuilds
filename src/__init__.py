@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+
 from curl_cffi import requests
 from curl_cffi.requests.impersonate import DEFAULT_CHROME
 from github import Github

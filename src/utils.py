@@ -1,11 +1,13 @@
-import re
 import logging
-from typing import List, Optional
-from src import gh
-from sys import exit
+import re
 import subprocess
 from pathlib import Path
+from sys import exit
+from typing import List, Optional
 from urllib.parse import urlparse, unquote, parse_qs
+
+from src import gh
+
 
 def _parseparam(s):
     while s[:1] == ";":

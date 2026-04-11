@@ -1,18 +1,11 @@
-import os
-import boto3
 import logging
+from datetime import datetime, timedelta, timezone
+
+import boto3
 from botocore.client import Config
-from datetime import (
-    datetime, 
-    timezone, 
-    timedelta
-)
-from src import (
-    bucket_name, 
-    endpoint_url, 
-    access_key_id, 
-    secret_access_key
-)
+
+from src import access_key_id, bucket_name, endpoint_url, secret_access_key
+
 
 def delete_old_files(s3, bucket_name, prefix, threshold_minutes=60):
     objects = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
