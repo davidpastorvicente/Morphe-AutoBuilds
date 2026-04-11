@@ -41,8 +41,8 @@ def get_build_number_for_version(version: str, config: dict) -> tuple[str | None
 
 def get_download_link(version: str, app_name: str, config: dict, arch: str = None) -> str: 
     target_arch = arch if arch else config.get('arch', 'universal')
-    
-    criteria = [config['type'], target_arch, config['dpi']]
+    target_dpi = config.get('dpi', '')
+    requested_type = config.get('type', '')
     
     # --- UNIVERSAL URL FINDER WITH VALIDATION ---
     # Extract build number if present (e.g., "32.30.0(1575420)" -> version="32.30.0", build="1575420")
@@ -74,6 +74,49 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
     
     # Use release_prefix if available, otherwise use app name
     release_name = config.get('release_prefix', config['name'])
+
+    def row_matches(row_text: str) -> bool:
+        normalized = " ".join(row_text.split())
+        arch_matches = not target_arch or target_arch in normalized
+        dpi_matches = not target_dpi or target_dpi in normalized
+        return arch_matches and dpi_matches
+
+    def absolute_url(href: str) -> str:
+        return href if href.startswith("http") else base_url + href
+
+    def find_release_link(soup: BeautifulSoup) -> str | None:
+        for anchor in soup.find_all("a", href=True):
+            href = anchor["href"]
+            classes = anchor.get("class", [])
+            text = " ".join(anchor.get_text(" ", strip=True).split())
+            if "android-apk-download" not in href:
+                continue
+            if version not in text and version not in href:
+                continue
+            if "downloadLink" in classes or "fontBlack" in classes or "accent_color" in classes:
+                return absolute_url(href)
+        return None
+
+    def find_direct_download(soup: BeautifulSoup) -> str | None:
+        button = soup.find("a", id="download-link")
+        if button and button.get("href"):
+            return absolute_url(button["href"])
+
+        for anchor in soup.find_all("a", href=True):
+            href = anchor["href"]
+            classes = anchor.get("class", [])
+            rel = anchor.get("rel", [])
+            text = " ".join(anchor.get_text(" ", strip=True).split())
+            if "download.php" in href:
+                return absolute_url(href)
+            if "nofollow" in rel and "/download/" in href:
+                return absolute_url(href)
+            if "downloadButton" not in classes:
+                continue
+            if "/download/" in href or "Download APK" in text:
+                if requested_type != "BUNDLE" or "Bundle" in text or "/download/" in href:
+                    return absolute_url(href)
+        return None
     
     # Loop backwards: Try full version, then strip parts
     for i in range(len(version_parts), 0, -1):
@@ -219,8 +262,7 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         
         # Check if row contains our exact version
         if version in row_text or version.replace('.', '-') in row_text:
-            # Check criteria
-            if all(criterion in row_text for criterion in criteria):
+            if row_matches(row_text):
                 sub_url = row.find('a', class_='accent_color')
                 if sub_url:
                     download_page_url = base_url + sub_url['href']
@@ -230,7 +272,7 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
     if not download_page_url:
         for row in rows:
             row_text = row.get_text()
-            if all(criterion in row_text for criterion in criteria):
+            if row_matches(row_text):
                 # Check if this looks like a variant row (has version numbers)
                 if re.search(r'\d+(\.\d+)+', row_text):
                     sub_url = row.find('a', class_='accent_color')
@@ -244,7 +286,10 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
                         break
     
     if not download_page_url:
-        logging.error(f"No variant found for {app_name} {version} with criteria {criteria}")
+        logging.error(
+            f"No variant found for {app_name} {version} with criteria "
+            f"[type={requested_type!r}, arch={target_arch!r}, dpi={target_dpi!r}]"
+        )
         # Debug: log what rows we found
         logging.debug(f"Found {len(rows)} rows total")
         for idx, row in enumerate(rows[:5]):  # First 5 rows
@@ -259,43 +304,39 @@ def get_download_link(version: str, app_name: str, config: dict, arch: str = Non
         logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Variant Page")
         soup = BeautifulSoup(response.content, "html.parser")
 
-        sub_url = soup.find('a', class_='downloadButton')
-        if sub_url:
-            final_download_page_url = base_url + sub_url['href']
+        direct_download_url = find_direct_download(soup)
+        if direct_download_url:
+            if "/download/?key=" in direct_download_url:
+                response = session.get(direct_download_url)
+                response.raise_for_status()
+                content_size = len(response.content)
+                logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Keyed Download Page")
+                soup = BeautifulSoup(response.content, "html.parser")
+                direct_download_url = find_direct_download(soup)
+            if direct_download_url:
+                return direct_download_url
+
+        final_download_page_url = find_release_link(soup)
+        if final_download_page_url:
             response = session.get(final_download_page_url)
             response.raise_for_status()
             content_size = len(response.content)
             logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Download Page")
             soup = BeautifulSoup(response.content, "html.parser")
 
-            button = soup.find('a', id='download-link')
-            if button:
-                return base_url + button['href']
+            direct_download_url = find_direct_download(soup)
+            if direct_download_url and "/download/?key=" in direct_download_url:
+                response = session.get(direct_download_url)
+                response.raise_for_status()
+                content_size = len(response.content)
+                logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Keyed Download Page")
+                soup = BeautifulSoup(response.content, "html.parser")
+                direct_download_url = find_direct_download(soup)
+            if direct_download_url:
+                return direct_download_url
     except Exception as e:
         logging.error(f"Error in download flow: {e}")
     
-    return None
-
-    # --- STANDARD DOWNLOAD FLOW (Page 2 -> Page 3 -> Link) ---
-    response = session.get(download_page_url)
-    response.raise_for_status()
-    content_size = len(response.content)
-    logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Variant Page")
-    soup = BeautifulSoup(response.content, "html.parser")
-
-    sub_url = soup.find('a', class_='downloadButton')
-    if sub_url:
-        final_download_page_url = base_url + sub_url['href']
-        response = session.get(final_download_page_url)
-        response.raise_for_status()
-        content_size = len(response.content)
-        logging.info(f"URL:{response.url} [{content_size}/{content_size}] -> Download Page")
-        soup = BeautifulSoup(response.content, "html.parser")
-
-        button = soup.find('a', id='download-link')
-        if button:
-            return base_url + button['href']
-
     return None
 
 def get_architecture_criteria(arch: str) -> dict:
