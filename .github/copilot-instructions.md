@@ -9,7 +9,7 @@ Morphe-AutoBuilds is a Python pipeline that **downloads base APKs → patches th
 1. **`patch-config.json`** lists `{app_name, source, arch}` entries → workflow builds a matrix job per app (arch is resolved internally by Python, not the matrix).
 2. Each job runs `python -m src` (entry point: `src/__main__.py`), which:
    - Reads `patch-config.json` to determine target architectures via `resolve_arch(app_name, source)`.
-   - Downloads CLI + patches from a **source** definition (`sources/<source>.json`).
+   - Loads pre-downloaded CLI + patches from the `tools/{source}/` artifact directory.
    - Resolves the target APK version and downloads the base APK from the first working platform (`apps/apkmirror/`, `apps/apkpure/`, etc.).
    - Patches, merges bundles if needed, strips architectures, signs with `keystore/public.jks`.
 3. Workflow creates/updates a GitHub release tagged `<app_name>-v<version>`.
@@ -30,13 +30,13 @@ Morphe-AutoBuilds is a Python pipeline that **downloads base APKs → patches th
 
 - **`patch-config.json`** — build matrix: `app_name`, `source`, and `arch` (list). This is the single source of truth for what gets built and at which architectures.
 - **`sources/<name>.json`** — GitHub repos for CLI + patches (e.g., `morphe.json` points to `MorpheApp/morphe-cli`).
-- **`apps/<platform>/<app>.json`** — per-platform scraper config (org, package name, DPI, optional pinned version). No `arch` field — arch is passed at runtime from `patch-config.json`.
+- **`apps/<app>.json`** — unified per-app config with `name` (slug), `displayName`, `package`, and platform sub-objects (`apkmirror`, `apkpure`, `uptodown`, `aptoide`). JSON keys use camelCase.
 - **`patches/<app>-<source>.txt`** — patch include (`+`) / exclude (`-`) rules, one per line.
 
 ## Code Style
 
 - Write concise code with minimal comments. Only comment when something genuinely needs clarification.
-- All Python code must pass `pylint src/ --disable=import-error` with no warnings (currently 10.00/10).
+- All Python code must pass `pylint src/` with no warnings (currently 10.00/10).
 - Use lazy `%` formatting in logging calls: `logging.info(x=%s, x)` — never f-strings.
 - Module-level constants are `UPPER_CASE`. Local/function-scope variables are `snake_case`.
 - Add docstrings to all public functions. Private helpers (prefixed `_`) need docstrings only if non-obvious.
@@ -48,7 +48,7 @@ Morphe-AutoBuilds is a Python pipeline that **downloads base APKs → patches th
 
 ```bash
 pip install pylint
-pylint src/ --disable=import-error
+pylint src/
 ```
 
 ## Running Locally
@@ -75,11 +75,11 @@ def get_latest_version(app_name: str, config: dict) -> str | None: ...
 def get_download_link(version: str, app_name: str, config: dict) -> str | None: ...
 ```
 
-`downloader.py` calls these dynamically via `importlib.import_module(f"src.{platform}")`. When adding a new platform, create `src/<platform>.py` with these two functions and add app configs under `apps/<platform>/`.
+`downloader.py` calls these dynamically via `importlib.import_module(f"src.{platform}")`. When adding a new platform, create `src/<platform>.py` with these two functions and add the platform config inside `apps/<app>.json`.
 
 ## Workflows
 
-- **`patch.yml`** — scheduled every 3 days. Matrix has only `app_name` and `source`; arch is read from `patch-config.json` by Python internally. Skips apps whose release tag already exists.
+- **`patch.yml`** — scheduled daily. Pre-downloads CLI+patches once per source (`prepare-sources` job), then builds a matrix job per app. Skips apps whose release tag already exists.
 - **`manual-patch.yml`** — manual dispatch with inputs for app, source, version, arch, and replace-in-release flag.
 - Both workflows use inline Python heredocs (`python - <<'PY'`) and import from `src.release` and `src.__main__` — changes to those modules' public API will break CI.
-- Public API used by workflows: `resolve_build_inputs(source)`, `resolve_download_target(app_name, cli, patches, arch)`, `resolve_arch(app_name, source)`.
+- Public API used by workflows: `resolve_build_inputs(source)`, `resolve_app_version(app_name, cli, patches, arch)`, `resolve_arch(app_name, source)`, `get_app_name(app_name)`.

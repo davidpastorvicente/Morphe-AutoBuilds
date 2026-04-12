@@ -58,11 +58,7 @@ Morphe-AutoBuilds/
 ├── .github/workflows/
 │   ├── patch.yml           # Scheduled build (daily)
 │   └── manual-patch.yml    # Manual trigger with override options
-├── apps/                   # Per-app, per-platform scraper configs
-│   ├── apkmirror/          # APKMirror definitions
-│   ├── apkpure/            # APKPure definitions
-│   ├── aptoide/            # Aptoide definitions
-│   └── uptodown/           # Uptodown definitions
+├── apps/                   # Unified per-app scraper configs (one JSON per app)
 ├── patches/                # Patch include/exclude rules per app+source
 ├── sources/                # Patch tool source definitions (GitHub releases)
 ├── src/                    # Python pipeline source
@@ -89,25 +85,47 @@ Controls which apps are built, which patch source to use, and which CPU architec
 }
 ```
 
-- `app_name` — must match a config file under `apps/<platform>/<app_name>.json`
+- `app_name` — must match a config file under `apps/<app_name>.json`
 - `source` — must match a file under `sources/<source>.json`
 - `arch` — list of architectures to build; each entry produces a separate APK
 
-### 2. Platform App Config (`apps/<platform>/<app>.json`)
+### 2. App Config (`apps/<app>.json`)
 
-Tells the scraper how to find and download the base APK. Example — `apps/apkmirror/youtube.json`:
+Unified config file per app with display name, package, and per-platform scraper settings. Example — `apps/youtube.json`:
 
 ```json
 {
-    "org": "google-inc",
     "name": "youtube",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "com.google.android.youtube"
+    "displayName": "YouTube",
+    "package": "com.google.android.youtube",
+    "apkmirror": {
+        "org": "google-inc",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
 }
 ```
 
-Optionally add `"version": "x.x.x"` to pin a specific version instead of fetching the latest.
+For apps where APKPure or Uptodown use a different slug than the root `name`, add a platform sub-object:
+
+```json
+{
+    "name": "instagram",
+    "displayName": "Instagram",
+    "package": "com.instagram.android",
+    "apkmirror": {
+        "org": "instagram",
+        "releasePrefix": "instagram",
+        "type": "BUNDLE",
+        "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "instagram-android-2025"
+    }
+}
+```
+
+**apkmirror fields:** `org` (required), `name` (optional — falls back to root `name`), `releasePrefix` (optional), `type` (`APK` or `BUNDLE`), `dpi`.
 
 ### 3. Patch Rules (`patches/<app>-<source>.txt`)
 
