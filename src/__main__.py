@@ -5,10 +5,19 @@ import logging
 import re
 import subprocess
 import sys
+from dataclasses import dataclass
 from os import getenv
 from pathlib import Path
 
 from src import downloader, utils
+
+
+@dataclass
+class BuildTools:
+    """Pre-downloaded CLI and patches used to skip re-downloading."""
+    cli: Path
+    patches: Path
+    is_morphe: bool
 
 
 def detect_source_type(
@@ -122,6 +131,32 @@ def resolve_download_target(
             return download_link, version
 
     return None, None
+
+
+def resolve_app_version(
+    app_name: str, cli: str, patches: str, arch: str = None,
+) -> str | None:
+    """Resolve the target version for *app_name* without fetching a download link."""
+    platforms = ["apkmirror", "apkpure", "uptodown", "aptoide"]
+    for platform in platforms:
+        version = downloader.resolve_platform_version(
+            app_name, platform, cli, patches, arch
+        )
+        if version:
+            return version
+    return None
+
+
+def resolve_download_link_only(
+    app_name: str, version: str, arch: str = None,
+) -> str | None:
+    """Fetch the download URL for a *version* already known to be valid."""
+    platforms = ["apkmirror", "apkpure", "uptodown", "aptoide"]
+    for platform in platforms:
+        link = downloader.resolve_platform_link(app_name, platform, version, arch)
+        if link:
+            return link
+    return None
 
 
 # ------------------------------------------------------------------
@@ -292,31 +327,59 @@ def _sign_apk(output_apk: Path, signed_apk: Path) -> None:
 # Main build orchestration
 # ------------------------------------------------------------------
 
-def run_build(
-    app_name: str, source: str, arch: str = "universal"
-) -> str:
-    """Build APK for specific architecture."""
-    download_files, name, cli, patches, is_morphe = \
-        resolve_build_inputs(source)
-
+def _fetch_build_tools(
+    source: str, tools: BuildTools | None
+) -> BuildTools | None:
+    """Return BuildTools; downloads from *source* if not pre-loaded."""
+    if tools is not None:
+        return tools
+    download_files, _, cli, patches, is_morphe = resolve_build_inputs(source)
     if not cli:
-        logging.error("❌ CLI not found for source: %s", source)
         logging.error(
-            "Available files: %s", [f.name for f in download_files]
+            "❌ CLI not found for source: %s (files: %s)",
+            source, [f.name for f in download_files],
         )
         return None
     if not patches:
-        logging.error("❌ Patches not found for source: %s", source)
         logging.error(
-            "Available files: %s", [f.name for f in download_files]
+            "❌ Patches not found for source: %s (files: %s)",
+            source, [f.name for f in download_files],
         )
         return None
+    return BuildTools(cli=cli, patches=patches, is_morphe=is_morphe)
 
-    logging.info("✅ Using CLI: %s", cli.name)
-    logging.info("✅ Using patches: %s", patches.name)
 
-    download_link, version = resolve_download_target(
-        app_name, str(cli), str(patches), arch
+def _resolve_link(
+    app_name: str, version: str | None, cli: Path, patches: Path, arch: str,
+) -> tuple[str | None, str | None]:
+    """Return ``(link, version)``; falls back to full resolution if hint fails."""
+    if version:
+        link = resolve_download_link_only(app_name, version, arch)
+        if link:
+            return link, version
+        logging.warning(
+            "⚠️ Direct link failed for %s v%s, falling back to full resolution",
+            app_name, version,
+        )
+    return resolve_download_target(app_name, str(cli), str(patches), arch)
+
+
+def run_build(
+    app_name: str, source: str, arch: str = "universal",
+    tools: BuildTools | None = None,
+    version: str | None = None,
+) -> str:
+    """Build APK for specific architecture."""
+    name = downloader.get_source_name(source)
+    resolved = _fetch_build_tools(source, tools)
+    if not resolved:
+        return None
+
+    logging.info("✅ Using CLI: %s", resolved.cli.name)
+    logging.info("✅ Using patches: %s", resolved.patches.name)
+
+    download_link, version = _resolve_link(
+        app_name, version, resolved.cli, resolved.patches, arch
     )
     input_apk = None
     if download_link:
@@ -330,28 +393,20 @@ def run_build(
         input_apk = _merge_bundle_apk(input_apk)
 
     if arch != "universal":
-        logging.info(
-            "Processing APK for %s architecture...", arch
-        )
+        logging.info("Processing APK for %s architecture...", arch)
     _strip_architectures(input_apk, arch)
 
-    exclude_patches, include_patches = _load_patch_config(
-        app_name, source
-    )
+    exclude_patches, include_patches = _load_patch_config(app_name, source)
     _repair_apk(input_apk, app_name, version)
 
-    output_apk = Path(
-        f"{app_name}-{arch}-patch-v{version}.apk"
-    )
+    output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
     _run_patcher(
-        cli, patches, input_apk, output_apk, is_morphe,
+        resolved.cli, resolved.patches, input_apk, output_apk, resolved.is_morphe,
         exclude_patches, include_patches,
     )
     input_apk.unlink(missing_ok=True)
 
-    signed_apk = Path(
-        f"{app_name}-{arch}-{name}-v{version}.apk"
-    )
+    signed_apk = Path(f"{app_name}-{arch}-{name}-v{version}.apk")
     _sign_apk(output_apk, signed_apk)
     output_apk.unlink(missing_ok=True)
     print(f"✅ APK built: {signed_apk.name}")
@@ -372,6 +427,20 @@ def resolve_arch(app_name: str, source: str) -> list[str]:
     return ["universal"]
 
 
+def _load_prebuilt_tools(tools_dir: str | None, source: str) -> BuildTools | None:
+    """Load pre-downloaded CLI and patches from *tools_dir* if available."""
+    if not tools_dir:
+        return None
+    path = Path(tools_dir)
+    if not path.exists():
+        return None
+    cli, patches, is_morphe = resolve_cli_and_patches(list(path.iterdir()), source)
+    if not cli or not patches:
+        return None
+    logging.info("📦 Using pre-downloaded tools from %s", tools_dir)
+    return BuildTools(cli=cli, patches=patches, is_morphe=is_morphe)
+
+
 def main():
     """CLI entry-point: read env vars and build for each arch."""
     app_name = getenv("APP_NAME")
@@ -389,10 +458,15 @@ def main():
     else:
         arches = resolve_arch(app_name, source)
 
+    pre_tools = _load_prebuilt_tools(getenv("TOOLS_DIR"), source)
+    version_hint = getenv("VERSION") or None
+
     built_apks: list[str] = []
     for arch in arches:
         logging.info("🔨 Building %s for %s architecture...", app_name, arch)
-        apk_path = run_build(app_name, source, arch)
+        apk_path = run_build(
+            app_name, source, arch, tools=pre_tools, version=version_hint
+        )
         if apk_path:
             built_apks.append(apk_path)
             print(f"✅ Built {arch}: {Path(apk_path).name}")

@@ -9,11 +9,12 @@ on:
     - cron: '0 6 * * *'  # Every day at 6 AM UTC
 
 jobs:
-  patch-apps:
+  read-config:
     name: Read Configuration
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.read-matrix.outputs.matrix }}
+      sources: ${{ steps.read-matrix.outputs.sources }}
 
     steps:
       - name: Checkout Repository
@@ -25,23 +26,21 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const path = './patch-config.json';
-            const matrix = JSON.parse(fs.readFileSync(path, 'utf8')).patch_list
-              .map(({ app_name, source }) => ({ app_name, source }));
+            const patchList = JSON.parse(fs.readFileSync('./patch-config.json', 'utf8')).patch_list;
+            const matrix = patchList.map(({ app_name, source }) => ({ app_name, source }));
+            const sources = [...new Set(patchList.map(e => e.source))];
             core.setOutput("matrix", JSON.stringify(matrix));
+            core.setOutput("sources", JSON.stringify(sources));
 
-  build-apps:
-    name: Build and Release Applications
-    needs: patch-apps
+  prepare-sources:
+    name: Download Tools (${{ matrix.source }})
+    needs: read-config
     runs-on: ubuntu-latest
-    continue-on-error: true
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.patch-apps.outputs.matrix) }}
-    
+        source: ${{ fromJson(needs.read-config.outputs.sources) }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -56,6 +55,70 @@ jobs:
           pip install -r requirements.txt
           pip install requests beautifulsoup4
 
+      - name: Download CLI and Patches
+        env:
+          SOURCE: ${{ matrix.source }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, shutil
+          from pathlib import Path
+          from src.downloader import download_required
+          from src.__main__ import resolve_cli_and_patches
+
+          source = os.environ["SOURCE"]
+          tools_dir = Path("tools") / source
+          tools_dir.mkdir(parents=True, exist_ok=True)
+
+          files, _ = download_required(source)
+          cli, patches, _ = resolve_cli_and_patches(files, source)
+          if not cli or not patches:
+              raise SystemExit(f"❌ Failed to download tools for {source}")
+
+          for f in files:
+              shutil.move(str(f), str(tools_dir / f.name))
+
+          print(f"✅ {source}: CLI={cli.name}, Patches={patches.name}")
+          PY
+
+      - name: Upload Tools Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tools-${{ matrix.source }}
+          path: tools/${{ matrix.source }}/
+
+  build-apps:
+    name: Build and Release Applications
+    needs: [read-config, prepare-sources]
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.read-config.outputs.matrix) }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install requests beautifulsoup4
+
+      - name: Download Tools
+        uses: actions/download-artifact@v4
+        with:
+          name: tools-${{ matrix.source }}
+          path: tools/${{ matrix.source }}
+
       - name: Resolve Target Version
         id: resolve-version
         env:
@@ -65,21 +128,26 @@ jobs:
         run: |
           python - <<'PY'
           import os
+          from pathlib import Path
           from src import release
-          from src.__main__ import resolve_arch, resolve_build_inputs, resolve_download_target
-          
+          from src.__main__ import resolve_arch, resolve_app_version, resolve_cli_and_patches
+
           app_name = os.environ["APP_NAME"]
           source = os.environ["SOURCE"]
+          tools_dir = Path("tools") / source
+
+          files = list(tools_dir.iterdir())
+          cli, patches, _ = resolve_cli_and_patches(files, source)
+          if not cli or not patches:
+              raise SystemExit("❌ CLI or patches not found in tools dir")
+
           arches = resolve_arch(app_name, source)
           arch = arches[0]
-          _, _, cli, patches, _ = resolve_build_inputs(source)
-          if not cli or not patches:
-              raise SystemExit("Failed to resolve CLI or patches")
-          
-          _, version = resolve_download_target(app_name, str(cli), str(patches), arch)
+
+          version = resolve_app_version(app_name, str(cli), str(patches), arch)
           if not version:
-              raise SystemExit("Failed to resolve target version")
-          
+              raise SystemExit(f"❌ Failed to resolve version for {app_name}")
+
           tag = f"{app_name}-v{version}"
           app_title = app_name.replace("-", " ").title().replace("Youtube", "YouTube")
           cli_version = release.extract_version(cli.name)
@@ -113,20 +181,22 @@ jobs:
         env:
           APP_NAME: ${{ matrix.app_name }}
           SOURCE: ${{ matrix.source }}
+          TOOLS_DIR: tools/${{ matrix.source }}
+          VERSION: ${{ steps.resolve-version.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Building ${{ matrix.app_name }} with ${{ matrix.source }}..."
           sleep $((RANDOM % 30)).$((RANDOM % 100))
-          
+
           python -m src
-      
+
       - name: Upload APK Artifact
         if: steps.check-release.outputs.skip_build != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: apk-${{ matrix.app_name }}-${{ matrix.source }}
           path: "*.apk"
-      
+
       - name: Generate Release Notes
         if: steps.check-release.outputs.skip_build != 'true'
         env:
@@ -168,3 +238,4 @@ jobs:
             filename=$(basename "$apk")
             echo "- $filename: $release_url/download/$filename"
           done
+

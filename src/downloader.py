@@ -171,6 +171,66 @@ def resolve_platform(
         return None, None
 
 
+def get_source_name(source: str) -> str:
+    """Read the display name for *source* from its definition file without downloading."""
+    source_path = Path("sources") / f"{source}.json"
+    with source_path.open(encoding="utf-8") as fh:
+        repos_info = json.load(fh)
+    if isinstance(repos_info, dict):
+        return repos_info.get("name", source)
+    return repos_info[0]["name"]
+
+
+def resolve_platform_version(
+    app_name: str, platform: str, cli: str, patches: str,
+    arch: str | None = None,
+) -> str | None:
+    """Resolve only the target version for *app_name* on *platform* (no download link)."""
+    try:
+        config_path = Path("apps") / platform / f"{app_name}.json"
+        if not config_path.exists():
+            return None
+        with config_path.open(encoding="utf-8") as fh:
+            config = json.load(fh)
+        if arch:
+            config["arch"] = arch
+        version = config.get("version") or utils.get_supported_version(
+            config["package"], cli, patches,
+        )
+        if not version:
+            platform_module = importlib.import_module(f"src.{platform}")
+            version = platform_module.get_latest_version(app_name, config)
+        return version
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logging.debug(
+            "Version resolution failed for %s on %s: %s", app_name, platform, exc
+        )
+        return None
+
+
+def resolve_platform_link(
+    app_name: str, platform: str, version: str,
+    arch: str | None = None,
+) -> str | None:
+    """Resolve the download URL for a known *version* of *app_name* on *platform*."""
+    try:
+        config_path = Path("apps") / platform / f"{app_name}.json"
+        if not config_path.exists():
+            return None
+        with config_path.open(encoding="utf-8") as fh:
+            config = json.load(fh)
+        if arch:
+            config["arch"] = arch
+        platform_module = importlib.import_module(f"src.{platform}")
+        return platform_module.get_download_link(version, app_name, config)
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logging.debug(
+            "Link resolution failed for %s v%s on %s: %s",
+            app_name, version, platform, exc,
+        )
+        return None
+
+
 # Platform-specific convenience wrappers
 
 def resolve_apkmirror(app_name, cli, patches, arch=None):
