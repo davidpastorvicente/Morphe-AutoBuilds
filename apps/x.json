@@ -5,7 +5,7 @@
     "apkmirror": {
         "org": "x-corp",
         "name": "twitter",
-        "release_prefix": "x",
+        "releasePrefix": "x",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     },

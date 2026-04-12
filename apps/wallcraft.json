@@ -5,7 +5,7 @@
     "apkmirror": {
         "org": "nebuchadnezzar-doo",
         "name": "wallpapers-hd-4k-backgrounds",
-        "release_prefix": "wallpaper-4k-hd-wallcraft",
+        "releasePrefix": "wallpaper-4k-hd-wallcraft",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     },

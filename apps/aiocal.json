@@ -5,7 +5,7 @@
     "apkmirror": {
         "org": "allinonecalculator-com",
         "name": "all-in-one-calculator-free",
-        "release_prefix": "all-in-one-calculator",
+        "releasePrefix": "all-in-one-calculator",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     },

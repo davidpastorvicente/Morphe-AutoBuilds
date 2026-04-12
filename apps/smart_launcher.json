@@ -4,7 +4,7 @@
     "package": "ginlemon.flowerfree",
     "apkmirror": {
         "org": "smart-launcher-team",
-        "release_prefix": "smart-launcher-6-\u2027-home-screen",
+        "releasePrefix": "smart-launcher-6-\u2027-home-screen",
         "type": "APK",
         "dpi": "nodpi"
     }

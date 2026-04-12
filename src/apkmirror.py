@@ -360,7 +360,7 @@ def _search_release_pages(
     """Walk version-part truncations and URL patterns to locate the
     correct release page.  Returns ``(soup, is_exact_match)``."""
     version_parts = version.split('.')
-    release_name = config.get('release_prefix', config['name'])
+    release_name = config.get('releasePrefix', config['name'])
     found_soup: BeautifulSoup | None = None
     correct = False
 

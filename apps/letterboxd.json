@@ -4,7 +4,7 @@
     "package": "com.letterboxd.letterboxd",
     "apkmirror": {
         "org": "letterboxd-limited",
-        "release_prefix": "busuu-learn-speak-languages",
+        "releasePrefix": "busuu-learn-speak-languages",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     }

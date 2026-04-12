@@ -5,7 +5,7 @@
     "apkmirror": {
         "org": "instagram",
         "name": "instagram-instagram",
-        "release_prefix": "instagram",
+        "releasePrefix": "instagram",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     },

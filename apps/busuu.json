@@ -5,7 +5,7 @@
     "apkmirror": {
         "org": "busuu",
         "name": "busuu-learn-languages",
-        "release_prefix": "busuu-learn-speak-languages",
+        "releasePrefix": "busuu-learn-speak-languages",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
     },
