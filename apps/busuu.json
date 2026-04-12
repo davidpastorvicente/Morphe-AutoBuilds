@@ -1,12 +1,16 @@
 {
     "package": "com.busuu.android.enc",
-    "apkpure_name": "busuu-learn-speak-languages",
-    "uptodown_name": "busuu",
     "apkmirror": {
         "org": "busuu",
         "name": "busuu-learn-languages",
         "release_prefix": "busuu-learn-speak-languages",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "busuu-learn-speak-languages"
+    },
+    "uptodown": {
+        "name": "busuu"
     }
 }

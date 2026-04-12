@@ -1,12 +1,16 @@
 {
     "package": "com.instagram.android",
-    "apkpure_name": "instagram-android-2025",
-    "uptodown_name": "instagram",
     "apkmirror": {
         "org": "instagram",
         "name": "instagram-instagram",
         "release_prefix": "instagram",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "instagram-android-2025"
+    },
+    "uptodown": {
+        "name": "instagram"
     }
 }

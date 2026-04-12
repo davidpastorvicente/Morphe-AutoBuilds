@@ -1,11 +1,15 @@
 {
     "package": "de.komoot.android",
-    "apkpure_name": "komoot-hike-bike-run",
-    "uptodown_name": "komoot",
     "apkmirror": {
         "org": "komoot-gmbh",
         "name": "komoot-cycling-hiking-mountain-biking-maps",
         "type": "APK",
         "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "komoot-hike-bike-run"
+    },
+    "uptodown": {
+        "name": "komoot"
     }
 }

@@ -1,5 +1,9 @@
 {
     "package": "com.pryshedko.mtisland",
-    "apkpure_name": "material-capsule-dyn-island",
-    "uptodown_name": "material-capsule"
+    "apkpure": {
+        "name": "material-capsule-dyn-island"
+    },
+    "uptodown": {
+        "name": "material-capsule"
+    }
 }

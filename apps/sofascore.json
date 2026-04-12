@@ -1,11 +1,15 @@
 {
     "package": "com.sofascore.results",
-    "apkpure_name": "sofascore-sports-live-scores",
-    "uptodown_name": "sofascore",
     "apkmirror": {
         "org": "sofascore",
         "name": "soccer-scores-and-sports-livescore-sofascore",
         "type": "APK",
         "dpi": "480-640"
+    },
+    "apkpure": {
+        "name": "sofascore-sports-live-scores"
+    },
+    "uptodown": {
+        "name": "sofascore"
     }
 }

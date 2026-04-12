@@ -1,11 +1,15 @@
 {
     "package": "com.kakao.talk",
-    "apkpure_name": "kakaotalk-messenger",
-    "uptodown_name": "kakaotalk",
     "apkmirror": {
         "org": "kakao-corp",
         "name": "kakaotalk",
         "type": "APK",
         "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "kakaotalk-messenger"
+    },
+    "uptodown": {
+        "name": "kakaotalk"
     }
 }

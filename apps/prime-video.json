@@ -1,11 +1,15 @@
 {
     "package": "com.amazon.avod.thirdpartyclient",
-    "apkpure_name": "prime-video",
-    "uptodown_name": "amazon-video",
     "apkmirror": {
         "org": "amazon-mobile-llc",
         "name": "amazon-prime-video",
         "type": "APK",
         "dpi": "nodpi"
+    },
+    "apkpure": {
+        "name": "prime-video"
+    },
+    "uptodown": {
+        "name": "amazon-video"
     }
 }

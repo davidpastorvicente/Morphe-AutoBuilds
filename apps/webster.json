@@ -1,11 +1,15 @@
 {
     "package": "com.merriamwebster",
-    "apkpure_name": "dictionary-merriam-webster",
-    "uptodown_name": "merriam-webster-dictionary",
     "apkmirror": {
         "org": "merriam-webster-inc",
         "name": "dictionary-merriam-webster",
         "type": "APK",
         "dpi": "nodpi"
+    },
+    "apkpure": {
+        "name": "dictionary-merriam-webster"
+    },
+    "uptodown": {
+        "name": "merriam-webster-dictionary"
     }
 }

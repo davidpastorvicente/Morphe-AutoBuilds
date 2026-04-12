@@ -1,12 +1,16 @@
 {
     "package": "all.in.one.calculator",
-    "apkpure_name": "all-in-one-calculator",
-    "uptodown_name": "mindbox-all-in-one-calculator",
     "apkmirror": {
         "org": "allinonecalculator-com",
         "name": "all-in-one-calculator-free",
         "release_prefix": "all-in-one-calculator",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
+    },
+    "apkpure": {
+        "name": "all-in-one-calculator"
+    },
+    "uptodown": {
+        "name": "mindbox-all-in-one-calculator"
     }
 }

@@ -1,11 +1,15 @@
 {
     "package": "com.getmimo",
-    "apkpure_name": "mimo-learn-coding-programming",
-    "uptodown_name": "mimo",
     "apkmirror": {
         "org": "mimohello-gmbh",
         "name": "mimo-learn-to-code",
         "type": "APK",
         "dpi": "nodpi"
+    },
+    "apkpure": {
+        "name": "mimo-learn-coding-programming"
+    },
+    "uptodown": {
+        "name": "mimo"
     }
 }

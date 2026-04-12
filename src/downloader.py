@@ -158,10 +158,10 @@ def _platform_config(config: dict, platform: str) -> dict | None:
             return None
         return {**am, "package": config.get("package", "")}
 
-    flat = {k: v for k, v in config.items() if k != "apkmirror"}
-    name_key = f"{platform}_name"
-    if name_key in config:
-        flat["name"] = config[name_key]
+    platform_obj = config.get(platform, {})
+    excluded = {"apkmirror", "apkpure", "uptodown", "aptoide"}
+    flat = {k: v for k, v in config.items() if k not in excluded}
+    flat["name"] = platform_obj.get("name") or config.get("name", "")
     if not flat.get("name"):
         return None
     return flat
