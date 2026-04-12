@@ -136,31 +136,62 @@ def _download_cli_for_bundle(out: list[Path]) -> None:
         logging.warning("Could not download ReVanced CLI")
 
 
+def _load_app_config(app_name: str) -> dict | None:
+    """Load the unified app config from apps/{app_name}.json."""
+    config_path = Path("apps") / f"{app_name}.json"
+    if not config_path.exists():
+        return None
+    with config_path.open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _platform_config(config: dict, platform: str) -> dict | None:
+    """Return a flat config dict suitable for the given *platform* module.
+
+    For apkmirror, merges the ``apkmirror`` sub-object with ``package``.
+    For apkpure/uptodown/aptoide, uses ``{platform}_name`` override if present.
+    Returns ``None`` when the platform has no config for this app.
+    """
+    if platform == "apkmirror":
+        am = config.get("apkmirror")
+        if not am:
+            return None
+        return {**am, "package": config.get("package", "")}
+
+    flat = {k: v for k, v in config.items() if k != "apkmirror"}
+    name_key = f"{platform}_name"
+    if name_key in config:
+        flat["name"] = config[name_key]
+    if not flat.get("name"):
+        return None
+    return flat
+
+
 def resolve_platform(
     app_name: str, platform: str, cli: str, patches: str,
     arch: str | None = None,
 ) -> tuple[str | None, str | None]:
     """Resolve the download URL and version for *app_name* on *platform*."""
     try:
-        config_path = Path("apps") / platform / f"{app_name}.json"
-        if not config_path.exists():
-            raise FileNotFoundError(f"Config file not found: {config_path}")
+        config = _load_app_config(app_name)
+        if not config:
+            return None, None
 
-        with config_path.open(encoding="utf-8") as fh:
-            config = json.load(fh)
+        platform_cfg = _platform_config(config, platform)
+        if not platform_cfg:
+            return None, None
 
         if arch:
-            config["arch"] = arch
+            platform_cfg["arch"] = arch
 
-        version = config.get("version") or utils.get_supported_version(
-            config["package"], cli, patches,
-        )
+        version = platform_cfg.get("version") or config.get("version") or \
+            utils.get_supported_version(platform_cfg["package"], cli, patches)
         platform_module = importlib.import_module(f"src.{platform}")
-        version = version or platform_module.get_latest_version(app_name, config)
+        version = version or platform_module.get_latest_version(app_name, platform_cfg)
         if not version:
             return None, None
 
-        download_link = platform_module.get_download_link(version, app_name, config)
+        download_link = platform_module.get_download_link(version, app_name, platform_cfg)
         if not download_link:
             return None, None
 
@@ -187,19 +218,22 @@ def resolve_platform_version(
 ) -> str | None:
     """Resolve only the target version for *app_name* on *platform* (no download link)."""
     try:
-        config_path = Path("apps") / platform / f"{app_name}.json"
-        if not config_path.exists():
+        config = _load_app_config(app_name)
+        if not config:
             return None
-        with config_path.open(encoding="utf-8") as fh:
-            config = json.load(fh)
+
+        platform_cfg = _platform_config(config, platform)
+        if not platform_cfg:
+            return None
+
         if arch:
-            config["arch"] = arch
-        version = config.get("version") or utils.get_supported_version(
-            config["package"], cli, patches,
-        )
+            platform_cfg["arch"] = arch
+
+        version = platform_cfg.get("version") or config.get("version") or \
+            utils.get_supported_version(platform_cfg["package"], cli, patches)
         if not version:
             platform_module = importlib.import_module(f"src.{platform}")
-            version = platform_module.get_latest_version(app_name, config)
+            version = platform_module.get_latest_version(app_name, platform_cfg)
         return version
     except Exception as e:
         logging.debug("Version resolution failed for %s on %s: %s", app_name, platform, e)
@@ -212,15 +246,18 @@ def resolve_platform_link(
 ) -> str | None:
     """Resolve the download URL for a known *version* of *app_name* on *platform*."""
     try:
-        config_path = Path("apps") / platform / f"{app_name}.json"
-        if not config_path.exists():
+        config = _load_app_config(app_name)
+        if not config:
             return None
-        with config_path.open(encoding="utf-8") as fh:
-            config = json.load(fh)
+
+        platform_cfg = _platform_config(config, platform)
+        if not platform_cfg:
+            return None
+
         if arch:
-            config["arch"] = arch
+            platform_cfg["arch"] = arch
         platform_module = importlib.import_module(f"src.{platform}")
-        return platform_module.get_download_link(version, app_name, config)
+        return platform_module.get_download_link(version, app_name, platform_cfg)
     except Exception as e:
         logging.debug("Link resolution failed for %s v%s on %s: %s", app_name, version, platform, e)
         return None
