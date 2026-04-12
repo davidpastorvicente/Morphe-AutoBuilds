@@ -1,6 +1,7 @@
 {
-    "package": "ginlemon.iconpackstudio",
     "name": "icon-pack-studio",
+    "displayName": "Icon Pack Studio",
+    "package": "ginlemon.iconpackstudio",
     "apkmirror": {
         "org": "smart-launcher-team",
         "name": "icon-pack-studio",

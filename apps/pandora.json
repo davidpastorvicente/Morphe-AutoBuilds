@@ -1,4 +1,5 @@
 {
+    "displayName": "Pandora",
     "package": "com.pandora.android",
     "apkmirror": {
         "org": "pandora",

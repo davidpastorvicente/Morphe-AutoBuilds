@@ -1,4 +1,5 @@
 {
-    "package": "com.ttxapps.autosync",
-    "name": "autosync"
+    "name": "autosync",
+    "displayName": "AutoSync",
+    "package": "com.ttxapps.autosync"
 }

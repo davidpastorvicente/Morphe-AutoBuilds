@@ -1,4 +1,6 @@
 {
+    "name": "x",
+    "displayName": "X",
     "package": "com.twitter.android",
     "apkmirror": {
         "org": "x-corp",
@@ -6,9 +8,6 @@
         "release_prefix": "x",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
-    },
-    "apkpure": {
-        "name": "x"
     },
     "uptodown": {
         "name": "twitter"

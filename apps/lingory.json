@@ -1,4 +1,5 @@
 {
-    "package": "org.languageapp.lingory",
-    "name": "lingory"
+    "name": "lingory",
+    "displayName": "Lingory",
+    "package": "org.languageapp.lingory"
 }

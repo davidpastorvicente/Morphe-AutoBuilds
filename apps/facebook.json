@@ -1,6 +1,7 @@
 {
-    "package": "com.facebook.katana",
     "name": "facebook",
+    "displayName": "Facebook",
+    "package": "com.facebook.katana",
     "apkmirror": {
         "org": "facebook-2",
         "name": "facebook",

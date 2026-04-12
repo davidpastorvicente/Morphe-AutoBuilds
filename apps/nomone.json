@@ -1,4 +1,5 @@
 {
-    "package": "nom.vrd",
-    "name": "nomone-desktop-linux-and-vr"
+    "name": "nomone-desktop-linux-and-vr",
+    "displayName": "NoMone",
+    "package": "nom.vrd"
 }

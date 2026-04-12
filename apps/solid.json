@@ -1,6 +1,7 @@
 {
-    "package": "pl.solidexplorer2",
     "name": "solid-explorer-file-manager",
+    "displayName": "Solid Explorer",
+    "package": "pl.solidexplorer2",
     "apkmirror": {
         "org": "neatbytes",
         "name": "solid-explorer-file-manager",

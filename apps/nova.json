@@ -1,4 +1,5 @@
 {
-    "package": "com.teslacoilsw.launcher",
-    "name": "nova-launcher"
+    "name": "nova-launcher",
+    "displayName": "Nova Launcher",
+    "package": "com.teslacoilsw.launcher"
 }

@@ -1,4 +1,5 @@
 {
-    "package": "jp.ne.ibis.ibispaintx.app",
-    "name": "ibispaint-x"
+    "name": "ibispaint-x",
+    "displayName": "ibis Paint X",
+    "package": "jp.ne.ibis.ibispaintx.app"
 }

@@ -1,4 +1,6 @@
 {
+    "name": "kakaotalk",
+    "displayName": "KakaoTalk",
     "package": "com.kakao.talk",
     "apkmirror": {
         "org": "kakao-corp",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "kakaotalk-messenger"
-    },
-    "uptodown": {
-        "name": "kakaotalk"
     }
 }

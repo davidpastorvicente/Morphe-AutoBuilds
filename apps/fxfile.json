@@ -1,4 +1,5 @@
 {
-    "package": "nextapp.fx",
-    "name": "fx-file-explorer"
+    "name": "fx-file-explorer",
+    "displayName": "FX File Explorer",
+    "package": "nextapp.fx"
 }

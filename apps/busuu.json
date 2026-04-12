@@ -1,4 +1,6 @@
 {
+    "name": "busuu",
+    "displayName": "Busuu",
     "package": "com.busuu.android.enc",
     "apkmirror": {
         "org": "busuu",
@@ -9,8 +11,5 @@
     },
     "apkpure": {
         "name": "busuu-learn-speak-languages"
-    },
-    "uptodown": {
-        "name": "busuu"
     }
 }

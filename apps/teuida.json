@@ -1,9 +1,8 @@
 {
+    "name": "teuida",
+    "displayName": "Teuida",
     "package": "net.teuida.teuida",
     "apkpure": {
         "name": "teuida-learn-languages"
-    },
-    "uptodown": {
-        "name": "teuida"
     }
 }

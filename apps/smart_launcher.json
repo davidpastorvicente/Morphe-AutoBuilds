@@ -1,10 +1,11 @@
 {
-    "package": "ginlemon.flowerfree",
     "name": "smart-launcher",
+    "displayName": "Smart Launcher",
+    "package": "ginlemon.flowerfree",
     "apkmirror": {
         "org": "smart-launcher-team",
         "name": "smart-launcher",
-        "release_prefix": "smart-launcher-6-‧-home-screen",
+        "release_prefix": "smart-launcher-6-\u2027-home-screen",
         "type": "APK",
         "dpi": "nodpi"
     }

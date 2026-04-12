@@ -1,4 +1,5 @@
 {
-    "package": "com.wixsite.ut_app.utalarm",
-    "name": "earphone-alarm"
+    "name": "earphone-alarm",
+    "displayName": "Earphone Alarm",
+    "package": "com.wixsite.ut_app.utalarm"
 }

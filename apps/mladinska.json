@@ -1,4 +1,5 @@
 {
-    "package": "com.mladinska.mkplus",
-    "name": "mladinska-knjiga-plus"
+    "name": "mladinska-knjiga-plus",
+    "displayName": "Mladinska Knjiga Plus",
+    "package": "com.mladinska.mkplus"
 }

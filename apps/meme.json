@@ -1,4 +1,6 @@
 {
+    "name": "meme-generator",
+    "displayName": "Meme Generator",
     "package": "com.zombodroid.MemeGenerator",
     "apkmirror": {
         "org": "zombodroid",
@@ -6,9 +8,6 @@
         "release_prefix": "meme-generator",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
-    },
-    "apkpure": {
-        "name": "meme-generator"
     },
     "uptodown": {
         "name": "meme-generator-free"

@@ -1,6 +1,7 @@
 {
-    "package": "com.thetransitapp.droid",
     "name": "transit",
+    "displayName": "Transit",
+    "package": "com.thetransitapp.droid",
     "apkmirror": {
         "org": "transit-app-inc",
         "name": "transit-real-time-transit-app",

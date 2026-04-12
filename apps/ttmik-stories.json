@@ -1,9 +1,8 @@
 {
+    "name": "ttmik-stories-korean",
+    "displayName": "TTMIK Stories",
     "package": "app.ttmikstories.android",
     "apkpure": {
         "name": "ttmik-stories-read-korean"
-    },
-    "uptodown": {
-        "name": "ttmik-stories-korean"
     }
 }

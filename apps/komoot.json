@@ -1,4 +1,6 @@
 {
+    "name": "komoot",
+    "displayName": "Komoot",
     "package": "de.komoot.android",
     "apkmirror": {
         "org": "komoot-gmbh",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "komoot-hike-bike-run"
-    },
-    "uptodown": {
-        "name": "komoot"
     }
 }

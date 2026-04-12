@@ -1,4 +1,5 @@
 {
-    "package": "com.groundspeak.geocaching.intro",
-    "name": "geocaching"
+    "name": "geocaching",
+    "displayName": "Geocaching",
+    "package": "com.groundspeak.geocaching.intro"
 }

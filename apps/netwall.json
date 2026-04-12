@@ -1,4 +1,5 @@
 {
-    "package": "com.ysy.app.firewall",
-    "name": "netwall-no-vpn-root-firewall"
+    "name": "netwall-no-vpn-root-firewall",
+    "displayName": "NetWall",
+    "package": "com.ysy.app.firewall"
 }

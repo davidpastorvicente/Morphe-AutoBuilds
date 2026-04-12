@@ -1,4 +1,6 @@
 {
+    "name": "soundcloud",
+    "displayName": "SoundCloud",
     "package": "com.soundcloud.android",
     "apkmirror": {
         "org": "soundcloud",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "sound-cloud-android"
-    },
-    "uptodown": {
-        "name": "soundcloud"
     }
 }

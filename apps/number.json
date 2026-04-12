@@ -1,9 +1,8 @@
 {
+    "name": "material-capsule",
+    "displayName": "Number",
     "package": "com.pryshedko.mtisland",
     "apkpure": {
         "name": "material-capsule-dyn-island"
-    },
-    "uptodown": {
-        "name": "material-capsule"
     }
 }

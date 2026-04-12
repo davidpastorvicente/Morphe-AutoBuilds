@@ -1,4 +1,6 @@
 {
+    "name": "merriam-webster-dictionary",
+    "displayName": "Webster",
     "package": "com.merriamwebster",
     "apkmirror": {
         "org": "merriam-webster-inc",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "dictionary-merriam-webster"
-    },
-    "uptodown": {
-        "name": "merriam-webster-dictionary"
     }
 }

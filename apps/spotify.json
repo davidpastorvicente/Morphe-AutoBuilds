@@ -1,4 +1,6 @@
 {
+    "name": "spotify",
+    "displayName": "Spotify",
     "package": "com.spotify.music",
     "apkmirror": {
         "org": "spotify-ab",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "spotify-music-and-podcasts-for-android-2025"
-    },
-    "uptodown": {
-        "name": "spotify"
     }
 }

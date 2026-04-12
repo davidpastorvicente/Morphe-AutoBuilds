@@ -1,6 +1,7 @@
 {
-    "package": "com.letterboxd.letterboxd",
     "name": "letterboxd",
+    "displayName": "Letterboxd",
+    "package": "com.letterboxd.letterboxd",
     "apkmirror": {
         "org": "letterboxd-limited",
         "name": "letterboxd",

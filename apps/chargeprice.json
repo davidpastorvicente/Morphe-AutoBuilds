@@ -1,4 +1,5 @@
 {
-    "package": "fr.chargeprice.app",
-    "name": "chargeprice-ev-map-prices"
+    "name": "chargeprice-ev-map-prices",
+    "displayName": "Chargeprice",
+    "package": "fr.chargeprice.app"
 }

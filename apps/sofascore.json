@@ -1,4 +1,6 @@
 {
+    "name": "sofascore",
+    "displayName": "SofaScore",
     "package": "com.sofascore.results",
     "apkmirror": {
         "org": "sofascore",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "sofascore-sports-live-scores"
-    },
-    "uptodown": {
-        "name": "sofascore"
     }
 }

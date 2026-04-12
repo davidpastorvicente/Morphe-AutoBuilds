@@ -1,6 +1,7 @@
 {
-    "package": "com.tumblr",
     "name": "tumblr",
+    "displayName": "Tumblr",
+    "package": "com.tumblr",
     "apkmirror": {
         "org": "tumblr",
         "name": "tumblr",

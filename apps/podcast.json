@@ -1,4 +1,5 @@
 {
-    "package": "com.bambuna.podcastaddict",
-    "name": "podcast-addict"
+    "name": "podcast-addict",
+    "displayName": "Podcast Addict",
+    "package": "com.bambuna.podcastaddict"
 }

@@ -1,4 +1,6 @@
 {
+    "name": "windy-com-weather-forecast",
+    "displayName": "Windy",
     "package": "com.windyty.android",
     "apkmirror": {
         "org": "windyty-se",
@@ -6,9 +8,6 @@
         "release_prefix": "windy-com-weather-forecast",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
-    },
-    "apkpure": {
-        "name": "windy-com-weather-forecast"
     },
     "uptodown": {
         "name": "windy-wind-waves-and-hurricanes-forecast"

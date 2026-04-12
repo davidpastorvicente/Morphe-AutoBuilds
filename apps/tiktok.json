@@ -1,4 +1,6 @@
 {
+    "name": "tiktok",
+    "displayName": "TikTok",
     "package": "com.zhiliaoapp.musically",
     "apkmirror": {
         "org": "tiktok-pte-ltd",
@@ -9,8 +11,5 @@
     },
     "apkpure": {
         "name": "tiktok-musically"
-    },
-    "uptodown": {
-        "name": "tiktok"
     }
 }

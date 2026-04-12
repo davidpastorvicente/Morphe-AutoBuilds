@@ -1,4 +1,5 @@
 {
-    "package": "com.shervinkoushan.anyTracker",
-    "name": "anytracker"
+    "name": "anytracker",
+    "displayName": "AnyTracker",
+    "package": "com.shervinkoushan.anyTracker"
 }

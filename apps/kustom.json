@@ -1,4 +1,5 @@
 {
-    "package": "org.kustom.widget",
-    "name": "kustom-widget"
+    "name": "kustom-widget",
+    "displayName": "Kustom Widget",
+    "package": "org.kustom.widget"
 }

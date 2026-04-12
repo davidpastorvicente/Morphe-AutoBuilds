@@ -1,4 +1,6 @@
 {
+    "name": "instagram",
+    "displayName": "Instagram",
     "package": "com.instagram.android",
     "apkmirror": {
         "org": "instagram",
@@ -9,8 +11,5 @@
     },
     "apkpure": {
         "name": "instagram-android-2025"
-    },
-    "uptodown": {
-        "name": "instagram"
     }
 }

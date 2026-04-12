@@ -1,4 +1,6 @@
 {
+    "name": "hellochinese",
+    "displayName": "HelloChinese",
     "package": "com.hellochinese",
     "apkmirror": {
         "org": "hellochinese-learn-chinese-mandarin",
@@ -9,8 +11,5 @@
     },
     "apkpure": {
         "name": "hellochinese-learn-chinese"
-    },
-    "uptodown": {
-        "name": "hellochinese"
     }
 }

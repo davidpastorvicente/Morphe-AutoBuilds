@@ -1,6 +1,7 @@
 {
-    "package": "ch.protonvpn.android",
     "name": "proton-vpn",
+    "displayName": "Proton VPN",
+    "package": "ch.protonvpn.android",
     "apkmirror": {
         "org": "proton-technologies",
         "name": "protonvpn",

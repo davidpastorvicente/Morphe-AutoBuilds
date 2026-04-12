@@ -1,6 +1,7 @@
 {
-    "package": "com.pinterest",
     "name": "pinterest",
+    "displayName": "Pinterest",
+    "package": "com.pinterest",
     "apkmirror": {
         "org": "pinterest",
         "name": "pinterest",

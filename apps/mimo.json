@@ -1,4 +1,6 @@
 {
+    "name": "mimo",
+    "displayName": "Mimo",
     "package": "com.getmimo",
     "apkmirror": {
         "org": "mimohello-gmbh",
@@ -8,8 +10,5 @@
     },
     "apkpure": {
         "name": "mimo-learn-coding-programming"
-    },
-    "uptodown": {
-        "name": "mimo"
     }
 }

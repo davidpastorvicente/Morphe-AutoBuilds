@@ -1,4 +1,5 @@
 {
-    "package": "com.avocards",
-    "name": "avocards"
+    "name": "avocards",
+    "displayName": "Avocards",
+    "package": "com.avocards"
 }

@@ -149,7 +149,7 @@ def _platform_config(config: dict, platform: str) -> dict | None:
     """Return a flat config dict suitable for the given *platform* module.
 
     For apkmirror, merges the ``apkmirror`` sub-object with ``package``.
-    For apkpure/uptodown/aptoide, uses ``{platform}_name`` override if present.
+    For apkpure/uptodown/aptoide, reads the slug from the platform sub-object.
     Returns ``None`` when the platform has no config for this app.
     """
     if platform == "apkmirror":
@@ -159,12 +159,19 @@ def _platform_config(config: dict, platform: str) -> dict | None:
         return {**am, "package": config.get("package", "")}
 
     platform_obj = config.get(platform, {})
-    excluded = {"apkmirror", "apkpure", "uptodown", "aptoide"}
-    flat = {k: v for k, v in config.items() if k not in excluded}
-    flat["name"] = platform_obj.get("name") or config.get("name", "")
-    if not flat.get("name"):
+    slug = platform_obj.get("name") or config.get("name")
+    if not slug:
         return None
+    excluded = {"displayName", "apkmirror", "apkpure", "uptodown", "aptoide"}
+    flat = {k: v for k, v in config.items() if k not in excluded}
+    flat["name"] = slug
     return flat
+
+
+def get_app_name(app_name: str) -> str:
+    """Return the display name for *app_name* from its config file."""
+    config = _load_app_config(app_name)
+    return config.get("displayName", app_name) if config else app_name
 
 
 def resolve_platform(

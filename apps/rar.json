@@ -1,13 +1,12 @@
 {
+    "name": "rar",
+    "displayName": "RAR",
     "package": "com.rarlab.rar",
     "apkmirror": {
         "org": "rarlab-published-by-win-rar-gmbh",
         "name": "rar",
         "type": "APK",
         "dpi": "nodpi"
-    },
-    "apkpure": {
-        "name": "rar"
     },
     "uptodown": {
         "name": "rar-for-android"

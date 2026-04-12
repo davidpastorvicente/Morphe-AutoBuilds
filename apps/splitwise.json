@@ -1,4 +1,5 @@
 {
-    "package": "com.Splitwise.SplitwiseMobile",
-    "name": "splitwise"
+    "name": "splitwise",
+    "displayName": "Splitwise",
+    "package": "com.Splitwise.SplitwiseMobile"
 }

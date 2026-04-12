@@ -1,13 +1,12 @@
 {
+    "name": "google-news",
+    "displayName": "Google News",
     "package": "com.google.android.apps.magazines",
     "apkmirror": {
         "org": "google-inc",
         "name": "google-news",
         "type": "APK",
         "dpi": "nodpi"
-    },
-    "apkpure": {
-        "name": "google-news"
     },
     "uptodown": {
         "name": "google-play-newsstand"

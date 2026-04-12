@@ -1,4 +1,5 @@
 {
-    "package": "com.netbiscuits.kicker",
-    "name": "kicker"
+    "name": "kicker",
+    "displayName": "Kicker",
+    "package": "com.netbiscuits.kicker"
 }

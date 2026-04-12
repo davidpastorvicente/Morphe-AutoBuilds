@@ -1,4 +1,5 @@
 {
-    "package": "com.calistree.calistree",
-    "name": "calistree-bodyweight-fitness"
+    "name": "calistree-bodyweight-fitness",
+    "displayName": "Calistree",
+    "package": "com.calistree.calistree"
 }

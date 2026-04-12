@@ -1,6 +1,7 @@
 {
-    "package": "ch.protonmail.android",
     "name": "proton-mail",
+    "displayName": "Proton Mail",
+    "package": "ch.protonmail.android",
     "apkmirror": {
         "org": "proton-technologies-ag",
         "name": "proton-mail-encrypted-email",

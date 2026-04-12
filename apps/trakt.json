@@ -1,6 +1,7 @@
 {
-    "package": "tv.trakt.trakt",
     "name": "trakt",
+    "displayName": "Trakt",
+    "package": "tv.trakt.trakt",
     "apkmirror": {
         "org": "trakt",
         "name": "trakt",

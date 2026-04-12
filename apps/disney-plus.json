@@ -1,6 +1,7 @@
 {
-    "package": "com.disney.disneyplus",
     "name": "disney-plus",
+    "displayName": "Disney+",
+    "package": "com.disney.disneyplus",
     "apkmirror": {
         "org": "disney",
         "name": "disney",

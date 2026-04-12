@@ -1,6 +1,7 @@
 {
-    "package": "com.duolingo",
     "name": "duolingo",
+    "displayName": "Duolingo",
+    "package": "com.duolingo",
     "apkmirror": {
         "org": "duolingo",
         "name": "duolingo",

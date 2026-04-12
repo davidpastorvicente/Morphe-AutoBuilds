@@ -1,4 +1,5 @@
 {
-    "package": "com.backdrops.wallpapers",
-    "name": "backdrops"
+    "name": "backdrops",
+    "displayName": "Backdrops",
+    "package": "com.backdrops.wallpapers"
 }

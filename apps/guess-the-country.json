@@ -1,4 +1,5 @@
 {
-    "package": "appinventor.ai_numonegames.GuessTheCountry",
-    "name": "guess-the-country"
+    "name": "guess-the-country",
+    "displayName": "Guess the Country",
+    "package": "appinventor.ai_numonegames.GuessTheCountry"
 }

@@ -1,4 +1,6 @@
 {
+    "name": "fotmob-soccer-live-scores",
+    "displayName": "FotMob",
     "package": "com.mobilefootie.wc2010",
     "apkmirror": {
         "org": "fotmob-as",
@@ -6,9 +8,6 @@
         "release_prefix": "fotmob-soccer-live-scores",
         "type": "BUNDLE",
         "dpi": "nodpi"
-    },
-    "apkpure": {
-        "name": "fotmob-soccer-live-scores"
     },
     "uptodown": {
         "name": "soccer-scores"

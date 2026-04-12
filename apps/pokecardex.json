@@ -1,4 +1,5 @@
 {
-    "package": "com.application.pokecardex",
-    "name": "pokécardex"
+    "name": "pok\u00e9cardex",
+    "displayName": "Pok\u00e9Cardex",
+    "package": "com.application.pokecardex"
 }

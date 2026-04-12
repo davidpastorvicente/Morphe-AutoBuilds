@@ -1,6 +1,7 @@
 {
-    "package": "com.google.android.youtube",
     "name": "youtube",
+    "displayName": "YouTube",
+    "package": "com.google.android.youtube",
     "apkmirror": {
         "org": "google-inc",
         "name": "youtube",

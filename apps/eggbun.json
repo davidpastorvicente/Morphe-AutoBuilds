@@ -1,4 +1,5 @@
 {
-    "package": "kr.eggbun.eggconvo",
-    "name": "eggbun"
+    "name": "eggbun",
+    "displayName": "Eggbun",
+    "package": "kr.eggbun.eggconvo"
 }

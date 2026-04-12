@@ -1,6 +1,7 @@
 {
-    "package": "com.viber.voip",
     "name": "viber",
+    "displayName": "Viber",
+    "package": "com.viber.voip",
     "apkmirror": {
         "org": "viber-media-s-a-r-l",
         "name": "viber",

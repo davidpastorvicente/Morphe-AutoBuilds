@@ -1,4 +1,5 @@
 {
-    "package": "com.myfitnesspal.android",
-    "name": "calorie-counter-myfitnesspal"
+    "name": "calorie-counter-myfitnesspal",
+    "displayName": "MyFitnessPal",
+    "package": "com.myfitnesspal.android"
 }

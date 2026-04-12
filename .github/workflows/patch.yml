@@ -149,7 +149,8 @@ jobs:
               raise SystemExit(f"❌ Failed to resolve version for {app_name}")
 
           tag = f"{app_name}-v{version}"
-          app_title = app_name.replace("-", " ").title().replace("Youtube", "YouTube")
+          from src.downloader import get_app_name
+          app_title = get_app_name(app_name)
           cli_version = release.extract_version(cli.name)
           patches_version = release.extract_version(patches.name)
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:

@@ -1,6 +1,7 @@
 {
-    "package": "net.dinglisch.android.taskerm",
     "name": "tasker",
+    "displayName": "Tasker",
+    "package": "net.dinglisch.android.taskerm",
     "apkmirror": {
         "org": "joaomgcd",
         "name": "tasker",

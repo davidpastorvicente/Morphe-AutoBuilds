@@ -1,4 +1,5 @@
 {
-    "package": "com.debridstream.tv",
-    "name": "debrid-stream"
+    "name": "debrid-stream",
+    "displayName": "DebridStream",
+    "package": "com.debridstream.tv"
 }

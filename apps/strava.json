@@ -1,6 +1,7 @@
 {
-    "package": "com.strava",
     "name": "strava",
+    "displayName": "Strava",
+    "package": "com.strava",
     "apkmirror": {
         "org": "strava",
         "name": "strava",

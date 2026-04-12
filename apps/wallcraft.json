@@ -1,4 +1,6 @@
 {
+    "name": "wallpaperscraft",
+    "displayName": "Wallcraft",
     "package": "com.wallpaperscraft.wallpaper",
     "apkmirror": {
         "org": "nebuchadnezzar-doo",
@@ -9,8 +11,5 @@
     },
     "apkpure": {
         "name": "wallpaper-4k-hd-\u2013-wallcraft"
-    },
-    "uptodown": {
-        "name": "wallpaperscraft"
     }
 }

@@ -1,4 +1,6 @@
 {
+    "name": "all-in-one-calculator",
+    "displayName": "AioCal",
     "package": "all.in.one.calculator",
     "apkmirror": {
         "org": "allinonecalculator-com",
@@ -6,9 +8,6 @@
         "release_prefix": "all-in-one-calculator",
         "type": "BUNDLE",
         "dpi": "120-640dpi"
-    },
-    "apkpure": {
-        "name": "all-in-one-calculator"
     },
     "uptodown": {
         "name": "mindbox-all-in-one-calculator"

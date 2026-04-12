@@ -1,6 +1,7 @@
 {
-    "package": "com.crunchyroll.crunchyroid",
     "name": "crunchyroll",
+    "displayName": "Crunchyroll",
+    "package": "com.crunchyroll.crunchyroid",
     "apkmirror": {
         "org": "crunchyroll",
         "name": "crunchyroll",

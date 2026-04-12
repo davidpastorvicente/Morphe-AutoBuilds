@@ -1,6 +1,7 @@
 {
-    "package": "com.microblink.photomath",
     "name": "photomath",
+    "displayName": "Photomath",
+    "package": "com.microblink.photomath",
     "apkmirror": {
         "org": "photomath",
         "name": "photomath",

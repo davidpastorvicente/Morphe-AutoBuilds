@@ -1,4 +1,5 @@
 {
-    "package": "cz.seznam.mapy",
-    "name": "mapy-cz"
+    "name": "mapy-cz",
+    "displayName": "Mapy.cz",
+    "package": "cz.seznam.mapy"
 }

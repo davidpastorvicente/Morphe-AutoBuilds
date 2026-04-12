@@ -1,8 +1,7 @@
 {
+    "name": "flatastic-the-roommate-app",
+    "displayName": "Flatastic",
     "package": "com.flatastic.app",
-    "apkpure": {
-        "name": "flatastic-the-roommate-app"
-    },
     "uptodown": {
         "name": "flatastic-die-wg-app"
     }

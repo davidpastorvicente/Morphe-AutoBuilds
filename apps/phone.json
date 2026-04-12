@@ -1,6 +1,7 @@
 {
-    "package": "com.google.android.dialer",
     "name": "phone-by-google-app",
+    "displayName": "Phone by Google",
+    "package": "com.google.android.dialer",
     "apkmirror": {
         "org": "google-inc",
         "name": "google-phone",

@@ -1,4 +1,5 @@
 {
-    "package": "com.bstar.intl",
-    "name": "bilibili"
+    "name": "bilibili",
+    "displayName": "Bilibili",
+    "package": "com.bstar.intl"
 }

@@ -1,4 +1,5 @@
 {
-    "package": "com.wakdev.wdnfc",
-    "name": "nfc-tools"
+    "name": "nfc-tools",
+    "displayName": "NFC Tools",
+    "package": "com.wakdev.wdnfc"
 }

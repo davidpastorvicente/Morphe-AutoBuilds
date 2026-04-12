@@ -1,13 +1,12 @@
 {
+    "name": "prime-video",
+    "displayName": "Prime Video",
     "package": "com.amazon.avod.thirdpartyclient",
     "apkmirror": {
         "org": "amazon-mobile-llc",
         "name": "amazon-prime-video",
         "type": "APK",
         "dpi": "nodpi"
-    },
-    "apkpure": {
-        "name": "prime-video"
     },
     "uptodown": {
         "name": "amazon-video"

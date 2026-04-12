@@ -1,6 +1,7 @@
 {
-    "package": "com.facebook.orca",
     "name": "messenger",
+    "displayName": "Messenger",
+    "package": "com.facebook.orca",
     "apkmirror": {
         "org": "facebook-2",
         "name": "messenger",
