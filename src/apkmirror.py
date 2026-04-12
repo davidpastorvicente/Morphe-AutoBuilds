@@ -119,7 +119,7 @@ def _generate_url_patterns(
 # Page-validation helpers
 # ---------------------------------------------------------------------------
 
-def _version_checks(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def _version_checks(
     version: str,
     ver_slug: str,
     version_parts: list[str],
@@ -146,7 +146,7 @@ def _version_checks(  # pylint: disable=too-many-arguments,too-many-positional-a
     return checks
 
 
-def _is_version_page(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def _is_version_page(
     soup: BeautifulSoup,
     version: str,
     ver_slug: str,
@@ -187,7 +187,7 @@ def _is_version_page(  # pylint: disable=too-many-arguments,too-many-positional-
 # Variant finder
 # ---------------------------------------------------------------------------
 
-def _find_variant_url(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def _find_variant_url(
     soup: BeautifulSoup,
     version: str,
     target_arch: str,
@@ -477,7 +477,7 @@ def get_download_link(
     return None
 
 
-def get_latest_version(_app_name: str, config: dict) -> str | None:  # pylint: disable=too-many-statements
+def get_latest_version(_app_name: str, config: dict) -> str | None:
     """Return the newest non-alpha/beta version string from APKMirror."""
     target_arch = config.get("arch", "")
     target_dpi = config.get("dpi", "")
@@ -506,7 +506,7 @@ def get_latest_version(_app_name: str, config: dict) -> str | None:  # pylint: d
                 versions.append(latest_part)
         return versions
 
-    def extract_versions(soup: BeautifulSoup) -> list[str]:  # pylint: disable=too-many-locals
+    def extract_versions(soup: BeautifulSoup) -> list[str]:
         versions: list[str] = []
         version_pattern = re.compile(
             r'\d+(\.\d+)*(-[a-zA-Z0-9]+(\.\d+)*)*'

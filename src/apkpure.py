@@ -42,10 +42,8 @@ def get_latest_version(_app_name: str, config: dict) -> str | None:
         if version_info and "data-dt-version" in version_info.attrs:
             return version_info["data-dt-version"]
 
-    except RequestException as exc:
-        logging.error(
-            "Failed to fetch latest version for %s: %s", _app_name, exc
-        )
+    except RequestException as e:
+        logging.error("Failed to fetch latest version for %s: %s", _app_name, e)
 
     return None
 
@@ -73,10 +71,7 @@ def get_download_link(version: str, _app_name: str, config: dict) -> str | None:
         if download_link:
             return download_link["href"]
 
-    except RequestException as exc:
-        logging.error(
-            "Failed to fetch download link for %s v%s: %s",
-            _app_name, version, exc,
-        )
+    except RequestException as e:
+        logging.error("Failed to fetch download link for %s v%s: %s",_app_name, version, e)
 
     return None

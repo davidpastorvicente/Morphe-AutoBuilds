@@ -247,7 +247,7 @@ def _repair_apk(input_apk: Path, app_name: str, version: str) -> None:
         logging.warning("Could not fix APK: %s", exc)
 
 
-def _run_patcher(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def _run_patcher(
     cli: Path,
     patches: Path,
     input_apk: Path,
@@ -265,7 +265,7 @@ def _run_patcher(  # pylint: disable=too-many-arguments,too-many-positional-argu
                 "patch", "--patches", str(patches),
                 "--out", str(output_apk), str(input_apk),
                 *exclude_patches, *include_patches,
-            ], stream=True)
+            ])
         except subprocess.CalledProcessError:
             logging.info("Trying alternative Morphe command format...")
             utils.run_process([
@@ -273,7 +273,7 @@ def _run_patcher(  # pylint: disable=too-many-arguments,too-many-positional-argu
                 "--patches", str(patches),
                 "--input", str(input_apk),
                 "--output", str(output_apk),
-            ], stream=True)
+            ])
     else:
         logging.info("🔧 Using ReVanced patching system...")
         cli_name = Path(cli).name.lower()
@@ -288,14 +288,14 @@ def _run_patcher(  # pylint: disable=too-many-arguments,too-many-positional-argu
                 "patch", "-p", str(patches), "-b",
                 "--out", str(output_apk), str(input_apk),
                 *exclude_patches, *include_patches,
-            ], stream=True)
+            ])
         else:
             utils.run_process([
                 "java", "-jar", str(cli),
                 "patch", "--patches", str(patches),
                 "--out", str(output_apk), str(input_apk),
                 *exclude_patches, *include_patches,
-            ], stream=True)
+            ])
 
 
 def _sign_apk(output_apk: Path, signed_apk: Path) -> None:
@@ -313,14 +313,11 @@ def _sign_apk(output_apk: Path, signed_apk: Path) -> None:
         "--in", str(output_apk), "--out", str(signed_apk),
     ]
     try:
-        utils.run_process(base_cmd, stream=True)
+        utils.run_process(base_cmd)
     except subprocess.CalledProcessError as exc:
         logging.warning("Standard signing failed: %s", exc)
         logging.info("Trying alternative signing method...")
-        utils.run_process(
-            base_cmd[:3] + ["--min-sdk-version", "21"] + base_cmd[3:],
-            stream=True,
-        )
+        utils.run_process(base_cmd[:3] + ["--min-sdk-version", "21"] + base_cmd[3:])
 
 
 # ------------------------------------------------------------------

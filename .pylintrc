@@ -1,0 +1,11 @@
+[MESSAGES CONTROL]
+disable=
+    import-error,
+    broad-exception-caught,
+    too-many-arguments,
+    too-many-positional-arguments,
+    too-many-statements,
+    too-many-locals
+
+[DESIGN]
+max-branches=15

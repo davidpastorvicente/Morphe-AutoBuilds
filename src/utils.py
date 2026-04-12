@@ -103,11 +103,10 @@ def find_apksigner() -> str | None:
     return None
 
 
-def run_process(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def run_process(
     command: list[str],
     cwd: Path | None = None,
     capture: bool = False,
-    stream: bool = False,  # pylint: disable=unused-argument
     silent: bool = False,
     check: bool = True,
     shell: bool = False,
@@ -143,8 +142,8 @@ def run_process(  # pylint: disable=too-many-arguments,too-many-positional-argum
             sys.exit(1)
         except subprocess.CalledProcessError:
             raise
-        except Exception as exc:  # pylint: disable=broad-exception-caught
-            print(f"Error while running command: {exc}", flush=True)
+        except Exception as e:
+            print(f"Error while running command: {e}", flush=True)
             sys.exit(1)
 
 

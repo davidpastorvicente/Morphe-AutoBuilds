@@ -132,7 +132,7 @@ def _download_cli_for_bundle(out: list[Path]) -> None:
                 out.append(download_resource(asset["browser_download_url"]))
                 logging.info("Downloaded ReVanced CLI")
                 break
-    except Exception:  # pylint: disable=broad-exception-caught
+    except Exception:
         logging.warning("Could not download ReVanced CLI")
 
 
@@ -166,8 +166,8 @@ def resolve_platform(
 
         return download_link, version
 
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        logging.error("Unexpected error: %s", exc)
+    except Exception as e:
+        logging.error("Unexpected error: %s", e)
         return None, None
 
 
@@ -201,10 +201,8 @@ def resolve_platform_version(
             platform_module = importlib.import_module(f"src.{platform}")
             version = platform_module.get_latest_version(app_name, config)
         return version
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        logging.debug(
-            "Version resolution failed for %s on %s: %s", app_name, platform, exc
-        )
+    except Exception as e:
+        logging.debug("Version resolution failed for %s on %s: %s", app_name, platform, e)
         return None
 
 
@@ -223,11 +221,8 @@ def resolve_platform_link(
             config["arch"] = arch
         platform_module = importlib.import_module(f"src.{platform}")
         return platform_module.get_download_link(version, app_name, config)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
-        logging.debug(
-            "Link resolution failed for %s v%s on %s: %s",
-            app_name, version, platform, exc,
-        )
+    except Exception as e:
+        logging.debug("Link resolution failed for %s v%s on %s: %s", app_name, version, platform, e)
         return None
 
 

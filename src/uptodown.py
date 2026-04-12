@@ -29,7 +29,7 @@ def get_latest_version(app_name: str, config: dict) -> str:
                 logging.debug("Not found: %s", url)
             else:
                 response.raise_for_status()
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception:
             logging.debug("Failed for %s", url)
 
     raise RuntimeError(f"Could not find Uptodown page for {app_name}")
@@ -57,7 +57,7 @@ def get_download_link(version: str, app_name: str, config: dict) -> str | None:
             )
             if download_url:
                 return download_url
-        except Exception:  # pylint: disable=broad-exception-caught
+        except Exception:
             logging.debug("Pattern %s failed", uptodown_name)
 
     logging.error("Version %s not found for %s", version, app_name)
