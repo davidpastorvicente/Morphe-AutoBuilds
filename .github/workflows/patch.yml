@@ -32,7 +32,7 @@ jobs:
             core.setOutput("matrix", JSON.stringify(matrix));
             core.setOutput("sources", JSON.stringify(sources));
 
-  prepare-sources:
+  prepare:
     name: Download Tools (${{ matrix.source }})
     needs: read-config
     runs-on: ubuntu-latest
@@ -87,9 +87,9 @@ jobs:
           name: tools-${{ matrix.source }}
           path: tools/${{ matrix.source }}/
 
-  build-apps:
-    name: Build and Release Applications
-    needs: [read-config, prepare-sources]
+  build:
+    name: ${{ matrix.app_name }} (${{ matrix.source }})
+    needs: [read-config, prepare]
     runs-on: ubuntu-latest
     continue-on-error: true
     permissions:
@@ -177,7 +177,7 @@ jobs:
             echo "No release found for $RELEASE_TAG, proceeding with build"
           fi
 
-      - name: Build APK
+      - name: Build ${{ matrix.app_name }}
         if: steps.check-release.outputs.skip_build != 'true'
         env:
           APP_NAME: ${{ matrix.app_name }}
@@ -218,7 +218,7 @@ jobs:
             echo "- **Built at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
           } > release_notes.md
 
-      - name: Create App Release
+      - name: Publish Release
         if: steps.check-release.outputs.skip_build != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
