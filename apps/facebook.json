@@ -4,7 +4,6 @@
     "package": "com.facebook.katana",
     "apkmirror": {
         "org": "facebook-2",
-        "name": "facebook",
         "type": "APK",
         "dpi": "nodpi"
     }

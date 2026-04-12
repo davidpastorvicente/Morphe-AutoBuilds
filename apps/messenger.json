@@ -4,7 +4,6 @@
     "package": "com.facebook.orca",
     "apkmirror": {
         "org": "facebook-2",
-        "name": "messenger",
         "type": "APK",
         "dpi": "nodpi"
     }

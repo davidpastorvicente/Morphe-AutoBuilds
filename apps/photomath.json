@@ -4,7 +4,6 @@
     "package": "com.microblink.photomath",
     "apkmirror": {
         "org": "photomath",
-        "name": "photomath",
         "type": "APK",
         "dpi": "nodpi"
     }

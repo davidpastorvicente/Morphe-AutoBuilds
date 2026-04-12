@@ -4,7 +4,6 @@
     "package": "com.google.android.apps.magazines",
     "apkmirror": {
         "org": "google-inc",
-        "name": "google-news",
         "type": "APK",
         "dpi": "nodpi"
     },

@@ -4,7 +4,6 @@
     "package": "com.google.android.youtube",
     "apkmirror": {
         "org": "google-inc",
-        "name": "youtube",
         "type": "APK",
         "dpi": "nodpi"
     }

@@ -4,7 +4,6 @@
     "package": "tv.trakt.trakt",
     "apkmirror": {
         "org": "trakt",
-        "name": "trakt",
         "type": "APK",
         "dpi": "nodpi"
     }

@@ -4,7 +4,6 @@
     "package": "com.duolingo",
     "apkmirror": {
         "org": "duolingo",
-        "name": "duolingo",
         "type": "APK",
         "dpi": "nodpi"
     }

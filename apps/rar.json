@@ -4,7 +4,6 @@
     "package": "com.rarlab.rar",
     "apkmirror": {
         "org": "rarlab-published-by-win-rar-gmbh",
-        "name": "rar",
         "type": "APK",
         "dpi": "nodpi"
     },

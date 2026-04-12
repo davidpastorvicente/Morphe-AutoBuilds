@@ -4,7 +4,6 @@
     "package": "com.tumblr",
     "apkmirror": {
         "org": "tumblr",
-        "name": "tumblr",
         "type": "APK",
         "dpi": "nodpi"
     }

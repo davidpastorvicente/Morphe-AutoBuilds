@@ -4,7 +4,6 @@
     "package": "com.crunchyroll.crunchyroid",
     "apkmirror": {
         "org": "crunchyroll",
-        "name": "crunchyroll",
         "type": "APK",
         "dpi": "nodpi"
     }

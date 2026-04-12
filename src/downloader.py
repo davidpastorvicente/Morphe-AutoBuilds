@@ -156,7 +156,10 @@ def _platform_config(config: dict, platform: str) -> dict | None:
         am = config.get("apkmirror")
         if not am:
             return None
-        return {**am, "package": config.get("package", "")}
+        result = {**am, "package": config.get("package", "")}
+        if "name" not in result:
+            result["name"] = config.get("name", "")
+        return result
 
     platform_obj = config.get(platform, {})
     slug = platform_obj.get("name") or config.get("name")

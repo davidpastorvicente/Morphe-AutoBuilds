@@ -4,7 +4,6 @@
     "package": "jp.pxv.android",
     "apkmirror": {
         "org": "pixiv",
-        "name": "pixiv",
         "type": "APK",
         "dpi": "nodpi"
     }

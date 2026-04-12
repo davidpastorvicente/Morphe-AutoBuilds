@@ -4,7 +4,6 @@
     "package": "com.strava",
     "apkmirror": {
         "org": "strava",
-        "name": "strava",
         "type": "APK",
         "dpi": "nodpi"
     }
