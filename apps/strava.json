@@ -1,0 +1,10 @@
+{
+    "package": "com.strava",
+    "name": "strava",
+    "apkmirror": {
+        "org": "strava",
+        "name": "strava",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

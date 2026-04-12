@@ -1,7 +1,0 @@
-{
-    "org": "twitch-interactive",
-    "name": "twitch",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "tv.twitch.android.app"
-}

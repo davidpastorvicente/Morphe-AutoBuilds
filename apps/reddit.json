@@ -1,0 +1,11 @@
+{
+    "package": "com.reddit.frontpage",
+    "apkpure_name": "reddit-apk",
+    "uptodown_name": "reddit-official-app",
+    "apkmirror": {
+        "org": "redditinc",
+        "name": "reddit",
+        "type": "BUNDLE",
+        "dpi": "120-640dpi"
+    }
+}

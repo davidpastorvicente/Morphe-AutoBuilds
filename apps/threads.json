@@ -1,0 +1,10 @@
+{
+    "package": "com.instagram.threads",
+    "name": "threads",
+    "apkmirror": {
+        "org": "instagram",
+        "name": "threads",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

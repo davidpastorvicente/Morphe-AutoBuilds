@@ -1,0 +1,12 @@
+{
+    "package": "com.letterboxd.letterboxd",
+    "name": "letterboxd",
+    "version": "3.2.10",
+    "apkmirror": {
+        "org": "letterboxd-limited",
+        "name": "letterboxd",
+        "release_prefix": "busuu-learn-speak-languages",
+        "type": "BUNDLE",
+        "dpi": "120-640dpi"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "package": "tv.trakt.trakt",
+    "name": "trakt",
+    "version": "1.1.1",
+    "apkmirror": {
+        "org": "trakt",
+        "name": "trakt",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

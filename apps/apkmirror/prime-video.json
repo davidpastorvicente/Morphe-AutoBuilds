@@ -1,7 +1,0 @@
-{
-    "org": "amazon-mobile-llc",
-    "name": "amazon-prime-video",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "com.amazon.avod.thirdpartyclient"
-}

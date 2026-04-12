@@ -1,0 +1,11 @@
+{
+    "package": "com.spotify.music",
+    "apkpure_name": "spotify-music-and-podcasts-for-android-2025",
+    "uptodown_name": "spotify",
+    "apkmirror": {
+        "org": "spotify-ab",
+        "name": "spotify-music-podcasts",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

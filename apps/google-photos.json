@@ -1,0 +1,10 @@
+{
+    "package": "com.google.android.apps.photos",
+    "name": "google-photos",
+    "apkmirror": {
+        "org": "google-inc",
+        "name": "photos",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

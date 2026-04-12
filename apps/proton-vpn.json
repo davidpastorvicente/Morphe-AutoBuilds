@@ -1,0 +1,10 @@
+{
+    "package": "ch.protonvpn.android",
+    "name": "proton-vpn",
+    "apkmirror": {
+        "org": "proton-technologies",
+        "name": "protonvpn",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

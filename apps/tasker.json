@@ -1,0 +1,11 @@
+{
+    "package": "net.dinglisch.android.taskerm",
+    "name": "tasker",
+    "apkmirror": {
+        "org": "joaomgcd",
+        "name": "tasker",
+        "release_prefix": "tasker-play-store-version",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

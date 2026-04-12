@@ -1,0 +1,10 @@
+{
+    "package": "com.disney.disneyplus",
+    "name": "disney-plus",
+    "apkmirror": {
+        "org": "disney",
+        "name": "disney",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

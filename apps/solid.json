@@ -1,0 +1,10 @@
+{
+    "package": "pl.solidexplorer2",
+    "name": "solid-explorer-file-manager",
+    "apkmirror": {
+        "org": "neatbytes",
+        "name": "solid-explorer-file-manager",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

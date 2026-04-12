@@ -1,0 +1,10 @@
+{
+    "package": "com.google.android.youtube",
+    "name": "youtube",
+    "apkmirror": {
+        "org": "google-inc",
+        "name": "youtube",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

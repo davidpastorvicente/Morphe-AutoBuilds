@@ -1,0 +1,10 @@
+{
+    "package": "ch.protonmail.android",
+    "name": "proton-mail",
+    "apkmirror": {
+        "org": "proton-technologies-ag",
+        "name": "proton-mail-encrypted-email",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

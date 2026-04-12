@@ -1,0 +1,11 @@
+{
+    "package": "com.adobe.lrmobile",
+    "apkpure_name": "lightroom",
+    "uptodown_name": "adobe-lightroom-mobile",
+    "apkmirror": {
+        "org": "adobe",
+        "name": "lightroom",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

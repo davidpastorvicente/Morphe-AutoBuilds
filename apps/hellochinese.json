@@ -1,0 +1,12 @@
+{
+    "package": "com.hellochinese",
+    "apkpure_name": "hellochinese-learn-chinese",
+    "uptodown_name": "hellochinese",
+    "apkmirror": {
+        "org": "hellochinese-learn-chinese-mandarin",
+        "name": "hellochinese-learn-chinese",
+        "release_prefix": "hellochinese-learn-chinese",
+        "type": "BUNDLE",
+        "dpi": "120-640dpi"
+    }
+}

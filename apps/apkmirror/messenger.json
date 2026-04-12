@@ -1,7 +1,0 @@
-{
-    "org": "facebook-2",
-    "name": "messenger",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "com.facebook.orca"
-}

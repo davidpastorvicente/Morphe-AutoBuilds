@@ -1,7 +1,0 @@
-{
-    "org": "strava",
-    "name": "strava",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "com.strava"
-}

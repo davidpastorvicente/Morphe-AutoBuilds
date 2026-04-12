@@ -1,0 +1,10 @@
+{
+    "package": "com.pinterest",
+    "name": "pinterest",
+    "apkmirror": {
+        "org": "pinterest",
+        "name": "pinterest",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

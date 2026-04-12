@@ -1,7 +1,0 @@
-{
-    "org": "spotify-ab",
-    "name": "spotify-music-podcasts",
-    "type": "APK",
-    "dpi": "nodpi",
-    "package": "com.spotify.music"
-}

@@ -1,0 +1,10 @@
+{
+    "package": "jp.pxv.android",
+    "name": "pixiv",
+    "apkmirror": {
+        "org": "pixiv",
+        "name": "pixiv",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

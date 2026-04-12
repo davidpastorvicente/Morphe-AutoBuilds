@@ -1,0 +1,10 @@
+{
+    "package": "com.duolingo",
+    "name": "duolingo",
+    "apkmirror": {
+        "org": "duolingo",
+        "name": "duolingo",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

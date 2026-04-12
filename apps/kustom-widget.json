@@ -1,0 +1,9 @@
+{
+    "package": "org.kustom.wallpaper",
+    "apkmirror": {
+        "org": "kustom-industries",
+        "name": "klwp-live-wallpaper-maker",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

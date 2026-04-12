@@ -1,0 +1,10 @@
+{
+    "package": "com.tumblr",
+    "name": "tumblr",
+    "apkmirror": {
+        "org": "tumblr",
+        "name": "tumblr",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

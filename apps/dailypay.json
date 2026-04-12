@@ -1,0 +1,9 @@
+{
+    "package": "com.DailyPay.DailyPay",
+    "apkmirror": {
+        "org": "daily-pay-inc",
+        "name": "dailypay-on-demand-pay",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

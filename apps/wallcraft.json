@@ -1,0 +1,12 @@
+{
+    "package": "com.wallpaperscraft.wallpaper",
+    "apkpure_name": "wallpaper-4k-hd-–-wallcraft",
+    "uptodown_name": "wallpaperscraft",
+    "apkmirror": {
+        "org": "nebuchadnezzar-doo",
+        "name": "wallpapers-hd-4k-backgrounds",
+        "release_prefix": "wallpaper-4k-hd-wallcraft",
+        "type": "BUNDLE",
+        "dpi": "120-640dpi"
+    }
+}

@@ -1,7 +1,0 @@
-{
-    "org": "kakao-corp",
-    "name": "kakaotalk",
-    "type": "APK",
-    "dpi": "120-640dpi",
-    "package": "com.kakao.talk"
-}

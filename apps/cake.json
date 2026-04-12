@@ -1,0 +1,11 @@
+{
+    "package": "me.mycake",
+    "apkpure_name": "cake",
+    "uptodown_name": "me-mycake",
+    "apkmirror": {
+        "org": "cake-corp",
+        "name": "cake-lesson-updates-every-day",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

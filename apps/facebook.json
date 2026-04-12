@@ -1,0 +1,10 @@
+{
+    "package": "com.facebook.katana",
+    "name": "facebook",
+    "apkmirror": {
+        "org": "facebook-2",
+        "name": "facebook",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

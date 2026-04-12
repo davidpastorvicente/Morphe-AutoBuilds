@@ -1,0 +1,10 @@
+{
+    "package": "com.crunchyroll.crunchyroid",
+    "name": "crunchyroll",
+    "apkmirror": {
+        "org": "crunchyroll",
+        "name": "crunchyroll",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "package": "com.google.android.apps.magazines",
+    "apkpure_name": "google-news",
+    "uptodown_name": "google-play-newsstand",
+    "version": "5.108.0.644447823",
+    "apkmirror": {
+        "org": "google-inc",
+        "name": "google-news",
+        "type": "APK",
+        "dpi": "nodpi"
+    }
+}
