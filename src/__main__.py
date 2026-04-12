@@ -214,18 +214,16 @@ def _strip_architectures(input_apk: Path, arch: str) -> None:
 def _load_patch_config(
     app_name: str, source: str
 ) -> tuple[list[str], list[str]]:
-    """Read the patch include/exclude file and return flag lists."""
-    exclude: list[str] = []
-    include: list[str] = []
-    patches_path = Path("patches") / f"{app_name}-{source}.txt"
-    if patches_path.exists():
-        with patches_path.open('r', encoding="utf-8") as patches_file:
-            for line in patches_file:
-                line = line.strip()
-                if line.startswith('-'):
-                    exclude.extend(["-d", line[1:].strip()])
-                elif line.startswith('+'):
-                    include.extend(["-e", line[1:].strip()])
+    """Read patch include/exclude rules from patch-config.json and return flag lists."""
+    with open("patch-config.json", encoding="utf-8") as fh:
+        patch_list = json.load(fh).get("patch_list", [])
+    entry = next(
+        (e for e in patch_list if e["app_name"] == app_name and e["source"] == source),
+        {}
+    )
+    patches = entry.get("patches", {})
+    exclude = [flag for name in patches.get("exclude", []) for flag in ("-d", name)]
+    include = [flag for name in patches.get("include", []) for flag in ("-e", name)]
     return exclude, include
 
 

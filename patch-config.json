@@ -1,9 +1,52 @@
 {
   "patch_list": [
-    {"app_name": "google-photos", "source": "rookie", "arch": ["arm64-v8a"]},
-    {"app_name": "instagram", "source": "piko", "arch": ["arm64-v8a"]},
-    {"app_name": "x", "source": "piko", "arch": ["universal"]},
-    {"app_name": "youtube", "source": "morphe", "arch": ["universal"]},
-    {"app_name": "youtube-music", "source": "morphe", "arch": ["arm64-v8a"]}
+    {
+      "app_name": "google-photos",
+      "source": "rookie",
+      "arch": [
+        "arm64-v8a"
+      ],
+      "patches": {
+        "include": [
+          "Enable DCIM folders backup control"
+        ],
+        "exclude": [
+          "Spoof build info"
+        ]
+      }
+    },
+    {
+      "app_name": "instagram",
+      "source": "piko",
+      "arch": [
+        "arm64-v8a"
+      ]
+    },
+    {
+      "app_name": "x",
+      "source": "piko",
+      "arch": [
+        "universal"
+      ],
+      "patches": {
+        "include": [
+          "Bring back twitter"
+        ]
+      }
+    },
+    {
+      "app_name": "youtube",
+      "source": "morphe",
+      "arch": [
+        "universal"
+      ]
+    },
+    {
+      "app_name": "youtube-music",
+      "source": "morphe",
+      "arch": [
+        "arm64-v8a"
+      ]
+    }
   ]
 }

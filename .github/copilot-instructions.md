@@ -10,7 +10,7 @@ Morphe-AutoBuilds is a Python pipeline that **downloads base APKs → patches th
 2. Each job runs `python -m src` (entry point: `src/__main__.py`), which:
    - Reads `patch-config.json` to determine target architectures via `resolve_arch(app_name, source)`.
    - Loads pre-downloaded CLI + patches from the `tools/{source}/` artifact directory.
-   - Resolves the target APK version and downloads the base APK from the first working platform (`apps/apkmirror/`, `apps/apkpure/`, etc.).
+   - Resolves the target APK version and downloads the base APK from the first working platform (`apkmirror`, `apkpure`, `uptodown`, `aptoide`).
    - Patches, merges bundles if needed, strips architectures, signs with `keystore/public.jks`.
 3. Workflow creates/updates a GitHub release tagged `<app_name>-v<version>`.
 
@@ -28,10 +28,9 @@ Morphe-AutoBuilds is a Python pipeline that **downloads base APKs → patches th
 
 ### Configuration files
 
-- **`patch-config.json`** — build matrix: `app_name`, `source`, and `arch` (list). This is the single source of truth for what gets built and at which architectures.
+- **`patch-config.json`** — build matrix: `app_name`, `source`, `arch` (list), and optional `patches` object with `include`/`exclude` string arrays. Single source of truth for what gets built.
 - **`sources/<name>.json`** — GitHub repos for CLI + patches (e.g., `morphe.json` points to `MorpheApp/morphe-cli`).
 - **`apps/<app>.json`** — unified per-app config with `name` (slug), `displayName`, `package`, and platform sub-objects (`apkmirror`, `apkpure`, `uptodown`, `aptoide`). JSON keys use camelCase.
-- **`patches/<app>-<source>.txt`** — patch include (`+`) / exclude (`-`) rules, one per line.
 
 ## Code Style
 

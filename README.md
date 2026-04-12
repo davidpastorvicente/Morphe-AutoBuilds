@@ -59,11 +59,10 @@ Morphe-AutoBuilds/
 │   ├── patch.yml           # Scheduled build (daily)
 │   └── manual-patch.yml    # Manual trigger with override options
 ├── apps/                   # Unified per-app scraper configs (one JSON per app)
-├── patches/                # Patch include/exclude rules per app+source
 ├── sources/                # Patch tool source definitions (GitHub releases)
 ├── src/                    # Python pipeline source
 ├── keystore/               # Signing keystore
-├── patch-config.json       # Build matrix: which apps, sources, and arches to build
+├── patch-config.json       # Build matrix: apps, sources, arches, and patch rules
 └── requirements.txt        # Python dependencies
 ```
 
@@ -78,7 +77,7 @@ Controls which apps are built, which patch source to use, and which CPU architec
 ```json
 {
   "patch_list": [
-    { "app_name": "youtube", "source": "morphe", "arch": ["universal"] },
+    { "app_name": "youtube", "source": "morphe", "arch": ["universal"], "patches": { "exclude": ["Change package name"] } },
     { "app_name": "youtube-music", "source": "morphe", "arch": ["arm64-v8a"] },
     { "app_name": "instagram", "source": "piko", "arch": ["arm64-v8a", "armeabi-v7a"] }
   ]
@@ -88,6 +87,7 @@ Controls which apps are built, which patch source to use, and which CPU architec
 - `app_name` — must match a config file under `apps/<app_name>.json`
 - `source` — must match a file under `sources/<source>.json`
 - `arch` — list of architectures to build; each entry produces a separate APK
+- `patches` — optional; `include` and `exclude` are lists of patch names
 
 ### 2. App Config (`apps/<app>.json`)
 
@@ -127,15 +127,23 @@ For apps where APKPure or Uptodown use a different slug than the root `name`, ad
 
 **apkmirror fields:** `org` (required), `name` (optional — falls back to root `name`), `releasePrefix` (optional), `type` (`APK` or `BUNDLE`), `dpi`.
 
-### 3. Patch Rules (`patches/<app>-<source>.txt`)
+### 3. Patch Rules (`patch-config.json` → `patches` object)
 
-Use `+` to force-include and `-` to exclude a patch, one per line:
+Patch include/exclude rules live directly in each `patch-config.json` entry under a `patches` object:
 
-```text
-+ premium-heading
-+ hide-infocard-suggestions
-- custom-branding
+```json
+{
+  "app_name": "youtube",
+  "source": "morphe",
+  "arch": ["universal"],
+  "patches": {
+    "exclude": ["Change package name"],
+    "include": ["Some patch name"]
+  }
+}
 ```
+
+Both `include` and `exclude` are optional — omit the whole `patches` object if no rules are needed.
 
 ### 4. Source Definitions (`sources/<source>.json`)
 
