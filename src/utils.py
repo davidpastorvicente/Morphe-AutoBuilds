@@ -187,8 +187,11 @@ def get_supported_version(
     lines = output.splitlines()
     logging.info("CLI raw output lines: %s", lines)
 
-    first_line = lines[0].strip().lower()
-    if any(kw in first_line for kw in ("usage:", "unmatched argument", "error")):
+    normalized_lines = [line.strip().lower() for line in lines]
+    if any(
+        any(kw in line for kw in ("usage:", "missing required option", "unmatched argument", "error"))
+        for line in normalized_lines
+    ):
         logging.warning("CLI returned error/usage output, cannot determine version")
         return None
 
@@ -219,7 +222,7 @@ def _build_list_versions_cmd(
     if is_morphe:
         return [
             "java", "-jar", cli,
-            "list-versions", "-f", package_name, patches,
+            "list-versions", "-f", package_name, "--patches", patches,
         ]
     if is_revanced_v6_plus:
         return [
