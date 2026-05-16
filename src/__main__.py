@@ -386,28 +386,39 @@ def run_build(
 
     if input_apk is None:
         logging.error("❌ Failed to download APK for %s", app_name)
-        sys.exit(1)
-
-    if input_apk.suffix != ".apk":
-        input_apk = _merge_bundle_apk(input_apk)
-
-    if arch != "universal":
-        logging.info("Processing APK for %s architecture...", arch)
-    _strip_architectures(input_apk, arch)
-
-    exclude_patches, include_patches = _load_patch_config(app_name, source)
-    _repair_apk(input_apk, app_name, version)
+        return None
 
     output_apk = Path(f"{app_name}-{arch}-patch-v{version}.apk")
-    _run_patcher(
-        resolved.cli, resolved.patches, input_apk, output_apk, resolved.is_morphe,
-        exclude_patches, include_patches,
-    )
-    input_apk.unlink(missing_ok=True)
-
     signed_apk = Path(f"{app_name}-{arch}-{name}-v{version}.apk")
-    _sign_apk(output_apk, signed_apk)
-    output_apk.unlink(missing_ok=True)
+
+    try:
+        if input_apk.suffix != ".apk":
+            input_apk = _merge_bundle_apk(input_apk)
+
+        if arch != "universal":
+            logging.info("Processing APK for %s architecture...", arch)
+        _strip_architectures(input_apk, arch)
+
+        exclude_patches, include_patches = _load_patch_config(app_name, source)
+        _repair_apk(input_apk, app_name, version)
+
+        _run_patcher(
+            resolved.cli, resolved.patches, input_apk, output_apk,
+            resolved.is_morphe, exclude_patches, include_patches,
+        )
+        _sign_apk(output_apk, signed_apk)
+    except (subprocess.CalledProcessError, OSError, SystemExit) as exc:
+        logging.error(
+            "❌ Build failed for %s with %s: %s",
+            app_name, arch, exc,
+        )
+        output_apk.unlink(missing_ok=True)
+        signed_apk.unlink(missing_ok=True)
+        return None
+    finally:
+        if input_apk is not None:
+            input_apk.unlink(missing_ok=True)
+
     print(f"✅ APK built: {signed_apk.name}")
 
     return str(signed_apk)
@@ -469,6 +480,15 @@ def main():
         if apk_path:
             built_apks.append(apk_path)
             print(f"✅ Built {arch}: {Path(apk_path).name}")
+            break
+        logging.warning(
+            "Build did not succeed for %s on %s; trying next arch",
+            app_name, arch,
+        )
+
+    if not built_apks:
+        logging.error("❌ Failed to build %s for all configured arches", app_name)
+        sys.exit(1)
 
     print(f"\n🎯 Built {len(built_apks)} APK(s) for {app_name}:")
     for apk in built_apks:

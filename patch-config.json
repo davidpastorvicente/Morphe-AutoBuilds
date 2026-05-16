@@ -26,6 +26,7 @@
       "app_name": "x",
       "source": "piko",
       "arch": [
+        "universal",
         "arm64-v8a"
       ],
       "patches": {
