@@ -403,6 +403,7 @@ def run_build(
             resolved.is_morphe, exclude_patches, include_patches,
         )
         _sign_apk(output_apk, signed_apk)
+        output_apk.unlink(missing_ok=True)
     except (subprocess.CalledProcessError, OSError, SystemExit) as exc:
         logging.error(
             "❌ Build failed for %s with %s: %s",

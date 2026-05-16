@@ -99,6 +99,7 @@ jobs:
           VERSION: ${{ inputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          rm -f ./*.apk
           echo "🔧 Building ${{ inputs.app_name }} with ${{ inputs.source }} for ${{ inputs.architecture }} architecture..."
           python -m src
       

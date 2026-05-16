@@ -186,6 +186,7 @@ jobs:
           VERSION: ${{ steps.resolve-version.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          rm -f ./*.apk
           echo "Building ${{ matrix.app_name }} with ${{ matrix.source }}..."
           sleep $((RANDOM % 30)).$((RANDOM % 100))
 
@@ -239,4 +240,3 @@ jobs:
             filename=$(basename "$apk")
             echo "- $filename: $release_url/download/$filename"
           done
-
