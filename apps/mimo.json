@@ -4,9 +4,7 @@
     "package": "com.getmimo",
     "apkmirror": {
         "org": "mimohello-gmbh",
-        "name": "mimo-learn-to-code",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "mimo-learn-to-code"
     },
     "apkpure": {
         "name": "mimo-learn-coding-programming"

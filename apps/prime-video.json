@@ -4,9 +4,7 @@
     "package": "com.amazon.avod.thirdpartyclient",
     "apkmirror": {
         "org": "amazon-mobile-llc",
-        "name": "amazon-prime-video",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "amazon-prime-video"
     },
     "uptodown": {
         "name": "amazon-video"

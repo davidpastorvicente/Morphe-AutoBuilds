@@ -3,9 +3,7 @@
     "displayName": "KakaoTalk",
     "package": "com.kakao.talk",
     "apkmirror": {
-        "org": "kakao-corp",
-        "type": "APK",
-        "dpi": "120-640dpi"
+        "org": "kakao-corp"
     },
     "apkpure": {
         "name": "kakaotalk-messenger"

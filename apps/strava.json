@@ -3,8 +3,6 @@
     "displayName": "Strava",
     "package": "com.strava",
     "apkmirror": {
-        "org": "strava",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "strava"
     }
 }

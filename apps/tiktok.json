@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "tiktok-pte-ltd",
         "name": "tik-tok-including-musical-ly",
-        "releasePrefix": "tiktok",
-        "type": "APK",
-        "dpi": "nodpi"
+        "releasePrefix": "tiktok"
     },
     "apkpure": {
         "name": "tiktok-musically"

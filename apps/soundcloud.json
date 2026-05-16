@@ -4,9 +4,7 @@
     "package": "com.soundcloud.android",
     "apkmirror": {
         "org": "soundcloud",
-        "name": "soundcloud-soundcloud",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "soundcloud-soundcloud"
     },
     "apkpure": {
         "name": "sound-cloud-android"

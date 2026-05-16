@@ -3,8 +3,6 @@
     "displayName": "Tumblr",
     "package": "com.tumblr",
     "apkmirror": {
-        "org": "tumblr",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "tumblr"
     }
 }

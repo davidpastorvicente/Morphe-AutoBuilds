@@ -3,8 +3,6 @@
     "displayName": "Pinterest",
     "package": "com.pinterest",
     "apkmirror": {
-        "org": "pinterest",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "pinterest"
     }
 }

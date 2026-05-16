@@ -4,9 +4,7 @@
     "package": "com.reddit.frontpage",
     "apkmirror": {
         "org": "redditinc",
-        "name": "reddit",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "name": "reddit"
     },
     "uptodown": {
         "name": "reddit-official-app"

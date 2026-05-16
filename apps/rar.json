@@ -3,9 +3,7 @@
     "displayName": "RAR",
     "package": "com.rarlab.rar",
     "apkmirror": {
-        "org": "rarlab-published-by-win-rar-gmbh",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "rarlab-published-by-win-rar-gmbh"
     },
     "uptodown": {
         "name": "rar-for-android"

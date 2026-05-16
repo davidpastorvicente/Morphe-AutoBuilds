@@ -4,8 +4,6 @@
     "package": "com.viber.voip",
     "apkmirror": {
         "org": "viber-media-s-a-r-l",
-        "releasePrefix": "rakuten-viber-messenger",
-        "type": "APK",
-        "dpi": "nodpi"
+        "releasePrefix": "rakuten-viber-messenger"
     }
 }

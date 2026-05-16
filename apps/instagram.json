@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "instagram",
         "name": "instagram-instagram",
-        "releasePrefix": "instagram",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "releasePrefix": "instagram"
     },
     "apkpure": {
         "name": "instagram-android-2025"

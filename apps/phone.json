@@ -4,8 +4,6 @@
     "package": "com.google.android.dialer",
     "apkmirror": {
         "org": "google-inc",
-        "name": "google-phone",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "google-phone"
     }
 }

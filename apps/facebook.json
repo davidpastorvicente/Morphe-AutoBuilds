@@ -3,8 +3,6 @@
     "displayName": "Facebook",
     "package": "com.facebook.katana",
     "apkmirror": {
-        "org": "facebook-2",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "facebook-2"
     }
 }

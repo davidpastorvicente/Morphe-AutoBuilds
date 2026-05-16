@@ -3,8 +3,6 @@
     "displayName": "YouTube",
     "package": "com.google.android.youtube",
     "apkmirror": {
-        "org": "google-inc",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "google-inc"
     }
 }

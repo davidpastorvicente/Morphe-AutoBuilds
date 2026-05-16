@@ -4,8 +4,6 @@
     "package": "com.google.android.apps.photos",
     "apkmirror": {
         "org": "google-inc",
-        "name": "photos",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "photos"
     }
 }

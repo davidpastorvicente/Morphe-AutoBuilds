@@ -3,8 +3,6 @@
     "displayName": "Twitch",
     "package": "tv.twitch.android.app",
     "apkmirror": {
-        "org": "twitch-interactive",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "twitch-interactive"
     }
 }

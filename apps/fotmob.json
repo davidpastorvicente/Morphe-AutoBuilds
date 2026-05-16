@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "fotmob-as",
         "name": "fotmob-live-soccer-scores",
-        "releasePrefix": "fotmob-soccer-live-scores",
-        "type": "BUNDLE",
-        "dpi": "nodpi"
+        "releasePrefix": "fotmob-soccer-live-scores"
     },
     "uptodown": {
         "name": "soccer-scores"

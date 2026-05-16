@@ -3,8 +3,6 @@
     "displayName": "Trakt",
     "package": "tv.trakt.trakt",
     "apkmirror": {
-        "org": "trakt",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "trakt"
     }
 }

@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "zombodroid",
         "name": "meme-generator-free",
-        "releasePrefix": "meme-generator",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "releasePrefix": "meme-generator"
     },
     "uptodown": {
         "name": "meme-generator-free"

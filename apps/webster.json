@@ -4,9 +4,7 @@
     "package": "com.merriamwebster",
     "apkmirror": {
         "org": "merriam-webster-inc",
-        "name": "dictionary-merriam-webster",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "dictionary-merriam-webster"
     },
     "apkpure": {
         "name": "dictionary-merriam-webster"

@@ -4,8 +4,6 @@
     "package": "com.disney.disneyplus",
     "apkmirror": {
         "org": "disney",
-        "name": "disney",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "disney"
     }
 }

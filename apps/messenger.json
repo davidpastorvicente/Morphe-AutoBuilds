@@ -3,8 +3,6 @@
     "displayName": "Messenger",
     "package": "com.facebook.orca",
     "apkmirror": {
-        "org": "facebook-2",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "facebook-2"
     }
 }

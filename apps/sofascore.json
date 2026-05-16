@@ -4,9 +4,7 @@
     "package": "com.sofascore.results",
     "apkmirror": {
         "org": "sofascore",
-        "name": "soccer-scores-and-sports-livescore-sofascore",
-        "type": "APK",
-        "dpi": "480-640"
+        "name": "soccer-scores-and-sports-livescore-sofascore"
     },
     "apkpure": {
         "name": "sofascore-sports-live-scores"

@@ -4,8 +4,6 @@
     "package": "com.google.android.apps.youtube.music",
     "apkmirror": {
         "org": "google-inc",
-        "name": "youtube-music",
-        "type": "APK",
-        "dpi": "nodpi"
+        "name": "youtube-music"
     }
 }

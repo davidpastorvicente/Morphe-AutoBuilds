@@ -191,18 +191,13 @@ def _find_variant_url(
     soup: BeautifulSoup,
     version: str,
     target_arch: str,
-    target_dpi: str,
-    requested_type: str,
     app_name: str,
 ) -> str | None:
     """Locate the download-page URL for the best matching variant row."""
 
     def _row_matches(row_text: str) -> bool:
         normalized = " ".join(row_text.split())
-        return (
-            (not target_arch or target_arch in normalized)
-            and (not target_dpi or target_dpi in normalized)
-        )
+        return not target_arch or target_arch in normalized
 
     rows = soup.find_all('div', class_='table-row headerFont')
 
@@ -231,9 +226,8 @@ def _find_variant_url(
                 return BASE_URL + sub['href']
 
     logging.error(
-        "No variant found for %s %s with criteria "
-        "[type=%r, arch=%r, dpi=%r]",
-        app_name, version, requested_type, target_arch, target_dpi,
+        "No variant found for %s %s with criteria [arch=%r]",
+        app_name, version, target_arch,
     )
     logging.debug("Found %d rows total", len(rows))
     for idx, row in enumerate(rows[:5]):
@@ -262,9 +256,7 @@ def _find_release_link(
     return None
 
 
-def _find_direct_download(
-    soup: BeautifulSoup, requested_type: str
-) -> str | None:
+def _find_direct_download(soup: BeautifulSoup) -> str | None:
     """Locate a direct-download link on *soup*."""
     button = soup.find("a", id="download-link")
     if button and button.get("href"):
@@ -282,19 +274,13 @@ def _find_direct_download(
         if "downloadButton" not in classes:
             continue
         if "/download/" in href or "Download APK" in text:
-            if (
-                requested_type != "BUNDLE"
-                or "Bundle" in text
-                or "/download/" in href
-            ):
-                return _absolute_url(href)
+            return _absolute_url(href)
     return None
 
 
 def _follow_download_chain(
     download_page_url: str,
     version: str,
-    requested_type: str,
 ) -> str | None:
     """Navigate from the variant page through intermediate pages
     and return the final direct-download URL."""
@@ -306,7 +292,7 @@ def _follow_download_chain(
     )
     soup = BeautifulSoup(response.content, "html.parser")
 
-    url = _resolve_keyed_download(soup, requested_type)
+    url = _resolve_keyed_download(soup)
     if url:
         return url
 
@@ -320,18 +306,16 @@ def _follow_download_chain(
             response.url, csize, csize,
         )
         soup = BeautifulSoup(response.content, "html.parser")
-        url = _resolve_keyed_download(soup, requested_type)
+        url = _resolve_keyed_download(soup)
         if url:
             return url
 
     return None
 
 
-def _resolve_keyed_download(
-    soup: BeautifulSoup, requested_type: str
-) -> str | None:
+def _resolve_keyed_download(soup: BeautifulSoup) -> str | None:
     """Handle the optional ``/download/?key=`` redirect."""
-    url = _find_direct_download(soup, requested_type)
+    url = _find_direct_download(soup)
     if not url:
         return None
     if "/download/?key=" in url:
@@ -343,7 +327,7 @@ def _resolve_keyed_download(
             response.url, csize, csize,
         )
         soup = BeautifulSoup(response.content, "html.parser")
-        url = _find_direct_download(soup, requested_type)
+        url = _find_direct_download(soup)
     return url
 
 
@@ -428,8 +412,6 @@ def get_download_link(
     """Return a direct APKMirror download URL for the requested app
     *version*, or *None* when no suitable link can be found."""
     target_arch = arch if arch else config.get('arch', 'universal')
-    target_dpi = config.get('dpi', '')
-    requested_type = config.get('type', '')
 
     version, build_number, build_format = _parse_build_from_version(
         version
@@ -462,16 +444,13 @@ def get_download_link(
         return None
 
     download_page_url = _find_variant_url(
-        found_soup, version, target_arch, target_dpi,
-        requested_type, _app_name,
+        found_soup, version, target_arch, _app_name,
     )
     if not download_page_url:
         return None
 
     try:
-        return _follow_download_chain(
-            download_page_url, version, requested_type
-        )
+        return _follow_download_chain(download_page_url, version)
     except RequestsError as exc:
         logging.error("Error in download flow: %s", exc)
     return None
@@ -480,7 +459,6 @@ def get_download_link(
 def get_latest_version(_app_name: str, config: dict) -> str | None:
     """Return the newest non-alpha/beta version string from APKMirror."""
     target_arch = config.get("arch", "")
-    target_dpi = config.get("dpi", "")
 
     def extract_variant_versions(soup: BeautifulSoup) -> list[str]:
         versions: list[str] = []
@@ -494,8 +472,6 @@ def get_latest_version(_app_name: str, config: dict) -> str | None:
             ):
                 continue
             if target_arch and target_arch not in row_text:
-                continue
-            if target_dpi and target_dpi not in row_text:
                 continue
             latest_part = (
                 row_text.split("Latest:", 1)[1]

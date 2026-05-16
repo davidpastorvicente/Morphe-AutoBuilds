@@ -3,9 +3,7 @@
     "displayName": "Google News",
     "package": "com.google.android.apps.magazines",
     "apkmirror": {
-        "org": "google-inc",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "google-inc"
     },
     "uptodown": {
         "name": "google-play-newsstand"

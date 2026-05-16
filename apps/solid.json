@@ -3,8 +3,6 @@
     "displayName": "Solid Explorer",
     "package": "pl.solidexplorer2",
     "apkmirror": {
-        "org": "neatbytes",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "neatbytes"
     }
 }

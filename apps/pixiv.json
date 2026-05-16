@@ -3,8 +3,6 @@
     "displayName": "Pixiv",
     "package": "jp.pxv.android",
     "apkmirror": {
-        "org": "pixiv",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "pixiv"
     }
 }

@@ -4,8 +4,6 @@
     "package": "net.dinglisch.android.taskerm",
     "apkmirror": {
         "org": "joaomgcd",
-        "releasePrefix": "tasker-play-store-version",
-        "type": "APK",
-        "dpi": "nodpi"
+        "releasePrefix": "tasker-play-store-version"
     }
 }

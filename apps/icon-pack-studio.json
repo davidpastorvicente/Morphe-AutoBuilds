@@ -3,8 +3,6 @@
     "displayName": "Icon Pack Studio",
     "package": "ginlemon.iconpackstudio",
     "apkmirror": {
-        "org": "smart-launcher-team",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "smart-launcher-team"
     }
 }

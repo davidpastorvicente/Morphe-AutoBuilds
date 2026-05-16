@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "allinonecalculator-com",
         "name": "all-in-one-calculator-free",
-        "releasePrefix": "all-in-one-calculator",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "releasePrefix": "all-in-one-calculator"
     },
     "uptodown": {
         "name": "mindbox-all-in-one-calculator"

@@ -3,9 +3,7 @@
     "displayName": "Lightroom",
     "package": "com.adobe.lrmobile",
     "apkmirror": {
-        "org": "adobe",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "adobe"
     },
     "uptodown": {
         "name": "adobe-lightroom-mobile"

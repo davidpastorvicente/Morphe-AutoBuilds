@@ -3,8 +3,6 @@
     "displayName": "Photomath",
     "package": "com.microblink.photomath",
     "apkmirror": {
-        "org": "photomath",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "photomath"
     }
 }

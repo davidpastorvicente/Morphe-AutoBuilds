@@ -3,8 +3,6 @@
     "displayName": "Duolingo",
     "package": "com.duolingo",
     "apkmirror": {
-        "org": "duolingo",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "duolingo"
     }
 }

@@ -3,8 +3,6 @@
     "displayName": "Threads",
     "package": "com.instagram.threads",
     "apkmirror": {
-        "org": "instagram",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "instagram"
     }
 }

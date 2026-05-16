@@ -5,9 +5,7 @@
     "apkmirror": {
         "org": "hellochinese-learn-chinese-mandarin",
         "name": "hellochinese-learn-chinese",
-        "releasePrefix": "hellochinese-learn-chinese",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "releasePrefix": "hellochinese-learn-chinese"
     },
     "apkpure": {
         "name": "hellochinese-learn-chinese"

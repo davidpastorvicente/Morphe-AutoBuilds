@@ -99,9 +99,7 @@ Unified config file per app with display name, package, and per-platform scraper
     "displayName": "YouTube",
     "package": "com.google.android.youtube",
     "apkmirror": {
-        "org": "google-inc",
-        "type": "APK",
-        "dpi": "nodpi"
+        "org": "google-inc"
     }
 }
 ```
@@ -115,9 +113,7 @@ For apps where APKPure or Uptodown use a different slug than the root `name`, ad
     "package": "com.instagram.android",
     "apkmirror": {
         "org": "instagram",
-        "releasePrefix": "instagram",
-        "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "releasePrefix": "instagram"
     },
     "apkpure": {
         "name": "instagram-android-2025"
@@ -125,7 +121,7 @@ For apps where APKPure or Uptodown use a different slug than the root `name`, ad
 }
 ```
 
-**apkmirror fields:** `org` (required), `name` (optional — falls back to root `name`), `releasePrefix` (optional), `type` (`APK` or `BUNDLE`), `dpi`.
+**apkmirror fields:** `org` (required), `name` (optional — falls back to root `name`), `releasePrefix` (optional), `arch` (optional).
 
 ### 3. Patch Rules (`patch-config.json` → `patches` object)
 
