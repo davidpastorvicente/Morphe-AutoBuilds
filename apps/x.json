@@ -7,7 +7,7 @@
         "name": "twitter",
         "releasePrefix": "x",
         "type": "BUNDLE",
-        "dpi": "120-640dpi"
+        "dpi": "320-640dpi"
     },
     "uptodown": {
         "name": "twitter"
