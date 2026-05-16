@@ -20,7 +20,13 @@
       "source": "piko",
       "arch": [
         "arm64-v8a"
-      ]
+      ],
+      "patches": {
+        "exclude": [
+          "Download media",
+          "View story mentions"
+        ]
+      }
     },
     {
       "app_name": "x",
