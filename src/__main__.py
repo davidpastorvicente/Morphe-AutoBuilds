@@ -262,6 +262,7 @@ def _run_patcher(
                 "java", "-jar", str(cli),
                 "patch", "--patches", str(patches),
                 "--out", str(output_apk), str(input_apk),
+                "--continue-on-error",
                 *exclude_patches, *include_patches,
             ])
         except subprocess.CalledProcessError:
@@ -271,6 +272,7 @@ def _run_patcher(
                 "--patches", str(patches),
                 "--input", str(input_apk),
                 "--output", str(output_apk),
+                "--continue-on-error",
             ])
     else:
         logging.info("🔧 Using ReVanced patching system...")
@@ -285,6 +287,7 @@ def _run_patcher(
                 "java", "-jar", str(cli),
                 "patch", "-p", str(patches), "-b",
                 "--out", str(output_apk), str(input_apk),
+                "--continue-on-error",
                 *exclude_patches, *include_patches,
             ])
         else:
@@ -292,6 +295,7 @@ def _run_patcher(
                 "java", "-jar", str(cli),
                 "patch", "--patches", str(patches),
                 "--out", str(output_apk), str(input_apk),
+                "--continue-on-error",
                 *exclude_patches, *include_patches,
             ])
 
